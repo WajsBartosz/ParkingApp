@@ -7,3 +7,5 @@ services:
     environment:
       MYSQL_DATABASE: "parking-app"
       MYSQL_ROOT_PASSWORD: ""
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
