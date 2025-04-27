@@ -13,8 +13,8 @@ def queryDB(db, query):
 db = mysql.connector.connect(
     host="mysql",
     port=3306,
-    user="root",
-    password="zaq1@WSX",
+    user=os.environ.get("DB_USER"),
+    password=os.environ.get("DB_PASSWORD"),
     database="parking-app",
 )
 
