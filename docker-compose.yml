@@ -17,8 +17,8 @@ services:
     ports:
       - '80:8000'
     volumes:
-      - ./requirements.txt:/code/requirements.txt
-      - ./endpoint.py:/code/app.py
+      - ./backend/requirements.txt:/code/requirements.txt
+      - ./backend/endpoint.py:/code/app.py
     command:
       sh -c "pip install --no-cache-dir --upgrade -r /code/requirements.txt &&
       sleep 5s && fastapi run /code/app.py"
