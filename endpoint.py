@@ -1,9 +1,14 @@
-from fastapi import FastAPI
+import os
+
 import mysql.connector
-import json
+from fastapi import FastAPI
 
 db = mysql.connector.connect(
-    host="mysql", port=3306, user="root", password="", database="parking-app"
+    host="mysql",
+    port=3306,
+    user=os.environ.get("DB_USER"),
+    password=os.environ.get("DB_PASSWORD"),
+    database="parking-app",
 )
 
 app = FastAPI()
