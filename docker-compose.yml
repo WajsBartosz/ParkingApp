@@ -3,22 +3,31 @@ services:
     image: mysql:latest
     container_name: parking-app-db
     ports:
-      - "3306:3306"
+      - '3306:3306'
     environment:
-      MYSQL_DATABASE: "parking-app"
-      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_DATABASE: 'parking-app'
+      MYSQL_ROOT_PASSWORD: ''
     volumes:
       - ./database:/docker-entrypoint-initdb.d
   python:
     image: python:latest
     container_name: backend
     ports:
-      - "80:8000"
+      - '80:8000'
     volumes:
       - ./requirements.txt:/code/requirements.txt
       - ./endpoint.py:/code/app.py
     command:
       sh -c "pip install --no-cache-dir --upgrade -r /code/requirements.txt &&
-      sleep 5s && 
-      fastapi run /code/app.py"
-      
+      sleep 5s && fastapi run /code/app.py"
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development

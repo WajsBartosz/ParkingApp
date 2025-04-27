@@ -3,14 +3,11 @@ import mysql.connector
 import json
 
 db = mysql.connector.connect(
-    host = "mysql",
-    port = 3306,
-    user = "root",
-    password = "",
-    database = "parking-app"
+    host="mysql", port=3306, user="root", password="", database="parking-app"
 )
 
 app = FastAPI()
+
 
 @app.get("/parking-spaces")
 def parkingspaces():
@@ -19,12 +16,10 @@ def parkingspaces():
     cursor.execute(query)
     result = cursor.fetchall()
 
-    json_response = [
-        {"ID": record[0], "parking-space": record[1]}
-        for record in result
-    ]
+    json_response = [{"ID": record[0], "parking-space": record[1]} for record in result]
 
     return json_response
+
 
 @app.get("/reservations")
 def reservations():
@@ -34,7 +29,13 @@ def reservations():
     result = cursor.fetchall()
 
     json_response = [
-        {"ID": reservation[0], "start": reservation[1], "end": reservation[2], "parking-space": reservation[3], "confirmed-reservation": reservation[4]}
+        {
+            "ID": reservation[0],
+            "start": reservation[1],
+            "end": reservation[2],
+            "parking-space": reservation[3],
+            "confirmed-reservation": reservation[4],
+        }
         for reservation in result
     ]
 
