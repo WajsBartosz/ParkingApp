@@ -3,7 +3,7 @@ import mysql.connector
 import json
 
 db = mysql.connector.connect(
-    host="mysql", port=3306, user="root", password="test", database="parking-app"
+    host="mysql", port=3306, user="root", password="", database="parking-app"
 )
 
 app = FastAPI()
