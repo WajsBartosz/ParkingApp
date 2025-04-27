@@ -6,7 +6,7 @@ services:
       - '3306:3306'
     environment:
       MYSQL_DATABASE: 'parking-app'
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: 'test'
     volumes:
       - ./database:/docker-entrypoint-initdb.d
   python:
