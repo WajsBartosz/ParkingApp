@@ -41,7 +41,7 @@ def parkingspaces():
         db=connectToDB(host, port, user, password, database)
         result=queryDB(db, "SELECT * FROM `parking-spaces` ORDER BY `ID`")
 
-        json_response=[
+        jsonResponse=[
             {
                 "ID": record[0], 
                 "parking-space": record[1]
@@ -49,7 +49,7 @@ def parkingspaces():
             for record in result
         ]
 
-        return json_response
+        return jsonResponse
     except:
         return "There was an issue with connection to database. Please try again later."
 
@@ -59,7 +59,7 @@ def reservations():
         db=connectToDB(host, port, user, password, database)
         result=queryDB(db, "SELECT * FROM `reservations` ORDER BY `ID`")
 
-        json_response=[
+        jsonResponse=[
             {
                 "ID": reservation[0],
                 "start": reservation[1],
@@ -70,7 +70,7 @@ def reservations():
             for reservation in result
         ]
 
-        return json_response
+        return jsonResponse
     except:
         return "There was an issue with connection to database. Please try again later."
 
@@ -88,20 +88,20 @@ def availablespaces(startTime: datetime = Query(description="Start time of reser
             ORDER BY `ID`"
         )
 
-        json_response=[
+        jsonResponse=[
             {
                 "parking-space": record[0]
             }
             for record in result
         ]
 
-        return json_response
+        return jsonResponse
     except:
         return "There was an issue with connection to database. Please try again later."
     
 @app.post("/make-reservation")
 def makereservation(parkingSpot: str = Query("Parking spot which you would like to reserve"), startTime: datetime = Query(description="Start time of reservation (YYYY-MM-DD HH:MM:SS format)"), endTime: datetime = Query(description="End time of your reservation (YYYY-MM-DD HH:MM:SS format)")):
-    # try:
+    try:
         db=connectToDB(host, port, user, password, database)
         checkParkingSpace=queryDB(db,
             f"SELECT `parking-space` FROM `parking-app`.`parking-spaces` \
@@ -129,6 +129,5 @@ def makereservation(parkingSpot: str = Query("Parking spot which you would like 
             return f"Confirmed reservation for parking space {parkingSpot}. Start time: {startTime}, end time: {endTime}."
         else:
             return "The parking spot that you have selected is not available during specified time."
-
-    # except:
-    #     return "There was an issue with connection to database. Please try again later."
+    except:
+        return "There was an issue with connection to database. Please try again later."
