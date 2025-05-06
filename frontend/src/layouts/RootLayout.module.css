@@ -1,0 +1,8 @@
+.navbar {
+  background: var(--primary-color);
+}
+
+.navbar-list {
+  display: flex;
+  gap: 16px;
+}
