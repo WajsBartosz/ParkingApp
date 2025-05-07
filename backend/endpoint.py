@@ -2,7 +2,9 @@ import os
 
 import mysql.connector
 from fastapi import FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
+
 
 def queryDB(db, query, params=None):
     cursor = db.cursor()
@@ -11,10 +13,12 @@ def queryDB(db, query, params=None):
 
     return result
 
+
 def insertIntoDB(db, query, params):
     cursor = db.cursor()
     cursor.execute(query, params)
     db.commit()
+
 
 def connectToDB(host, port, user, password, database):
     db = mysql.connector.connect(
@@ -24,8 +28,9 @@ def connectToDB(host, port, user, password, database):
         password=password,
         database=database,
     )
-    
+
     return db
+
 
 def checkDate(date, format):
     try:
@@ -41,34 +46,42 @@ user=os.environ.get("DB_USER")
 password=os.environ.get("DB_PASSWORD")
 database="parking-app"
 datetimeFormat="%Y-%m-%d %H:%M:%S"
+
 app = FastAPI()
+
+origins = ["http://localhost:3000", "http://localhost:5173"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/parking-spaces")
 def parkingspaces():
     try:
-        db=connectToDB(host, port, user, password, database)
-        result=queryDB(db, "SELECT * FROM `parking-spaces` ORDER BY `ID`")
+        db = connectToDB(host, port, user, password, database)
+        result = queryDB(db, "SELECT * FROM `parking-spaces` ORDER BY `ID`")
 
-        jsonResponse=[
-            {
-                "ID": record[0], 
-                "parking-space": record[1]
-            } 
-            for record in result
+        jsonResponse = [
+            {"ID": record[0], "parking-space": record[1]} for record in result
         ]
 
         return jsonResponse
     except:
         return "There was an issue with connection to database. Please try again later."
 
+
 @app.get("/reservations")
 def reservations():
     try:
-        db=connectToDB(host, port, user, password, database)
-        result=queryDB(db, "SELECT * FROM `reservations` ORDER BY `ID`")
+        db = connectToDB(host, port, user, password, database)
+        result = queryDB(db, "SELECT * FROM `reservations` ORDER BY `ID`")
 
-        jsonResponse=[
+        jsonResponse = [
             {
                 "ID": reservation[0],
                 "start": reservation[1],
