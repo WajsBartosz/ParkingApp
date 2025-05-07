@@ -1,10 +1,16 @@
+import BookingFilters from "./components/BookingFilters";
 import BookingMap from "./components/BookingMap";
+import BookingProvider from "./providers/BookingProvider/BookingProvider";
 
 function BookingPage() {
   return (
     <main>
       <h1>Strona rezerwacji</h1>
-      <BookingMap />
+
+      <BookingProvider>
+        <BookingFilters />
+        <BookingMap />
+      </BookingProvider>
     </main>
   );
 }

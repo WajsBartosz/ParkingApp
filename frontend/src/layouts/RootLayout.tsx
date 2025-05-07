@@ -1,7 +1,6 @@
 import { Outlet } from "react-router";
 import styles from "./RootLayout.module.css";
 
-console.log({ styles });
 function RootLayout() {
   return (
     <div>
