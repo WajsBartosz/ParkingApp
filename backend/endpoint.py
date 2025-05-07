@@ -2,7 +2,9 @@ import os
 
 import mysql.connector
 from fastapi import FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
+
 
 def queryDB(db, query):
     cursor = db.cursor()
@@ -11,10 +13,12 @@ def queryDB(db, query):
 
     return result
 
+
 def insertIntoDB(db, query, params):
     cursor = db.cursor()
     cursor.execute(query, params)
     db.commit()
+
 
 def connectToDB(host, port, user, password, database):
     db = mysql.connector.connect(
@@ -24,42 +28,50 @@ def connectToDB(host, port, user, password, database):
         password=password,
         database=database,
     )
-    
+
     return db
 
-host="mysql"
-port=3306
-user=os.environ.get("DB_USER")
-password=os.environ.get("DB_PASSWORD")
-database="parking-app"
+
+host = "mysql"
+port = 3306
+user = os.environ.get("DB_USER")
+password = os.environ.get("DB_PASSWORD")
+database = "parking-app"
 app = FastAPI()
+
+origins = ["http://localhost:3000", "http://localhost:5173"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/parking-spaces")
 def parkingspaces():
     try:
-        db=connectToDB(host, port, user, password, database)
-        result=queryDB(db, "SELECT * FROM `parking-spaces` ORDER BY `ID`")
+        db = connectToDB(host, port, user, password, database)
+        result = queryDB(db, "SELECT * FROM `parking-spaces` ORDER BY `ID`")
 
-        jsonResponse=[
-            {
-                "ID": record[0], 
-                "parking-space": record[1]
-            } 
-            for record in result
+        jsonResponse = [
+            {"ID": record[0], "parking-space": record[1]} for record in result
         ]
 
         return jsonResponse
     except:
         return "There was an issue with connection to database. Please try again later."
 
+
 @app.get("/reservations")
 def reservations():
     try:
-        db=connectToDB(host, port, user, password, database)
-        result=queryDB(db, "SELECT * FROM `reservations` ORDER BY `ID`")
+        db = connectToDB(host, port, user, password, database)
+        result = queryDB(db, "SELECT * FROM `reservations` ORDER BY `ID`")
 
-        jsonResponse=[
+        jsonResponse = [
             {
                 "ID": reservation[0],
                 "start": reservation[1],
@@ -76,40 +88,53 @@ def reservations():
 
 
 @app.get("/get-available-spaces")
-def availablespaces(startTime: datetime = Query(description="Start time of reservation (YYYY-MM-DD HH:MM:SS format)"), endTime: datetime = Query(description="End time of your reservation (YYYY-MM-DD HH:MM:SS format)")):
+def availablespaces(
+    startTime: datetime = Query(
+        description="Start time of reservation (YYYY-MM-DD HH:MM:SS format)"
+    ),
+    endTime: datetime = Query(
+        description="End time of your reservation (YYYY-MM-DD HH:MM:SS format)"
+    ),
+):
     try:
-        db=connectToDB(host, port, user, password, database)
-        result=queryDB(db, 
-            f"SELECT `parking-space` FROM `parking-app`.`parking-spaces` \
+        db = connectToDB(host, port, user, password, database)
+        result = queryDB(
+            db,
+            f'SELECT `parking-space` FROM `parking-app`.`parking-spaces` \
             WHERE `parking-space` NOT IN ( \
             SELECT `parking-space` FROM `parking-app`.`reservations` \
-            WHERE NOT (end <= \"{startTime}\" OR start >= \"{endTime}\") \
+            WHERE NOT (end <= "{startTime}" OR start >= "{endTime}") \
             ) \
-            ORDER BY `ID`"
+            ORDER BY `ID`',
         )
 
-        jsonResponse=[
-            {
-                "parking-space": record[0]
-            }
-            for record in result
-        ]
+        jsonResponse = [{"parking-space": record[0]} for record in result]
 
         return jsonResponse
     except:
         return "There was an issue with connection to database. Please try again later."
-    
+
+
 @app.post("/make-reservation")
-def makereservation(parkingSpot: str = Query("Parking spot which you would like to reserve"), startTime: datetime = Query(description="Start time of reservation (YYYY-MM-DD HH:MM:SS format)"), endTime: datetime = Query(description="End time of your reservation (YYYY-MM-DD HH:MM:SS format)")):
+def makereservation(
+    parkingSpot: str = Query("Parking spot which you would like to reserve"),
+    startTime: datetime = Query(
+        description="Start time of reservation (YYYY-MM-DD HH:MM:SS format)"
+    ),
+    endTime: datetime = Query(
+        description="End time of your reservation (YYYY-MM-DD HH:MM:SS format)"
+    ),
+):
     try:
-        db=connectToDB(host, port, user, password, database)
-        checkParkingSpace=queryDB(db,
-            f"SELECT `parking-space` FROM `parking-app`.`parking-spaces` \
+        db = connectToDB(host, port, user, password, database)
+        checkParkingSpace = queryDB(
+            db,
+            f'SELECT `parking-space` FROM `parking-app`.`parking-spaces` \
             WHERE `parking-space` NOT IN ( \
             SELECT `parking-space` FROM `parking-app`.`reservations` \
-            WHERE NOT (end <= \"{startTime}\" OR start >= \"{endTime}\") \
+            WHERE NOT (end <= "{startTime}" OR start >= "{endTime}") \
             ) \
-            ORDER BY `ID`"
+            ORDER BY `ID`',
         )
 
         for parkingSpace in checkParkingSpace:
@@ -120,11 +145,12 @@ def makereservation(parkingSpot: str = Query("Parking spot which you would like 
                 availableSpace = False
 
         if availableSpace:
-            insertIntoDB(db,
-                    f"INSERT INTO `parking-app`.`reservations` \
+            insertIntoDB(
+                db,
+                f"INSERT INTO `parking-app`.`reservations` \
                     (`start`, `end`, `parking-space`, `confirmed-reservation`) \
                     VALUES(%s, %s, %s, %s)",
-                    (startTime, endTime, parkingSpot, 0)          
+                (startTime, endTime, parkingSpot, 0),
             )
             return f"Confirmed reservation for parking space {parkingSpot}. Start time: {startTime}, end time: {endTime}."
         else:
