@@ -1,24 +1,15 @@
-import BookingSpot from "./BookingSpot";
-import { SpotType } from "./types";
-import styles from "./BookingMap.module.css";
-import useBooking from "../providers/BookingProvider/hooks";
-import { useAvailableSpaces } from "../../../features/booking/queries";
 import { format } from "date-fns";
-
-const spots: SpotType[] = [
-  {
-    name: "A1",
-  },
-  { name: "A2" },
-  { name: "A3" },
-];
+import { useAvailableSpaces } from "../../../features/booking/queries";
+import useBooking from "../providers/BookingProvider/hooks";
+import styles from "./BookingMap.module.css";
+import ParkingSpace from "./ParkingSpace";
 
 interface Props {}
 
 function BookingMap({}: Props) {
   const { filters } = useBooking();
 
-  const { data } = useAvailableSpaces({
+  const { data, isFetching } = useAvailableSpaces({
     startTime: filters.date && format(filters.date, "yyyy-MM-dd HH:MM:SS"),
     endTime: filters.date && format(filters.date, "yyyy-MM-dd HH:MM:SS"),
   });
@@ -27,9 +18,8 @@ function BookingMap({}: Props) {
 
   return (
     <div className={styles.container}>
-      {spots.map((spot) => (
-        <BookingSpot spot={spot} />
-      ))}
+      {isFetching && <p>Pobieranie wolnych miejsc</p>}
+      {data?.map((parkingSpace) => <ParkingSpace space={parkingSpace} />)}
     </div>
   );
 }
