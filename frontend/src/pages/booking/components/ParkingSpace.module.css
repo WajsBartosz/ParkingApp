@@ -8,6 +8,6 @@
   border-radius: 16px;
 }
 
-.container:hover {
+.container[data-disabled="true"] {
   background: red;
 }

@@ -7,10 +7,10 @@ import {
 } from "react";
 
 type BookingFilters = {
-  date: Date;
-  time: {
-    from: number;
-    to: number;
+  date?: Date;
+  time?: {
+    from?: Date;
+    to?: Date;
   };
 };
 

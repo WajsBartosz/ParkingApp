@@ -3,6 +3,21 @@ import api from "../../lib/api";
 import ky from "ky";
 import { ParkingSpace } from "./types";
 
+type FetchAllSpacesResult = ParkingSpace[];
+
+async function fetchAllSpaces(): Promise<FetchAllSpacesResult> {
+  const response = await api.get("parking-spaces");
+
+  return response.json();
+}
+
+export function useAllSpaces() {
+  return useQuery({
+    queryKey: ["fetchAllSpaces"],
+    queryFn: ({ queryKey }) => fetchAllSpaces(),
+  });
+}
+
 type FetchAvailableSpacesParams = {
   startTime?: string;
   endTime?: string;
@@ -18,7 +33,7 @@ async function fetchAvailableSpaces(
   if (params.startTime) searchParams.set("startTime", params.startTime);
   if (params.endTime) searchParams.set("endTime", params.endTime);
 
-  console.log(searchParams.toString());
+  // console.log(searchParams.toString());
   const response = await api.get(
     "get-available-spaces?" + searchParams.toString(),
   );
@@ -27,13 +42,13 @@ async function fetchAvailableSpaces(
 }
 
 export function useAvailableSpaces(params: FetchAvailableSpacesParams) {
-  console.log("params:", params);
+  // console.log("params:", params);
 
   const isEnabled = !!params.startTime && !!params.endTime;
 
-  console.log({ isEnabled });
+  // console.log({ isEnabled });
   return useQuery({
-    queryKey: ["availableSpots"],
+    queryKey: ["availableSpaces"],
     queryFn: ({ queryKey }) => fetchAvailableSpaces(params),
     enabled: !!params.startTime && !!params.endTime,
   });
