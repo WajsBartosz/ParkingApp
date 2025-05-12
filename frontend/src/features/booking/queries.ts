@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "../../lib/api";
-import ky from "ky";
 import { ParkingSpace } from "./types";
 
 type FetchAllSpacesResult = ParkingSpace[];
