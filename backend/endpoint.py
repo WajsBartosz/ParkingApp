@@ -1,7 +1,7 @@
 import os
 
 import mysql.connector
-from fastapi import FastAPI, Query
+from fastapi import Body, FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 
@@ -117,11 +117,11 @@ def availablespaces(
 
 @app.post("/make-reservation")
 def makereservation(
-    parkingSpot: str = Query("Parking spot which you would like to reserve"),
-    startTime: datetime = Query(
+    parkingSpot: str = Body("Parking spot which you would like to reserve"),
+    startTime: datetime = Body(
         description="Start time of reservation (YYYY-MM-DD HH:MM:SS format)"
     ),
-    endTime: datetime = Query(
+    endTime: datetime = Body(
         description="End time of your reservation (YYYY-MM-DD HH:MM:SS format)"
     ),
 ):
@@ -137,23 +137,33 @@ def makereservation(
             ORDER BY `ID`',
         )
 
+        availableSpace = False
         for parkingSpace in checkParkingSpace:
             if parkingSpot == str(parkingSpace[0]):
                 availableSpace = True
                 break
-            else:
-                availableSpace = False
 
-        if availableSpace:
-            insertIntoDB(
-                db,
-                f"INSERT INTO `parking-app`.`reservations` \
+        if not availableSpace:
+            return {
+                "success": False,
+                "message": "The parking spot that you have selected is not available during specified time.",
+            }
+
+        insertIntoDB(
+            db,
+            f"INSERT INTO `parking-app`.`reservations` \
                     (`start`, `end`, `parking-space`, `confirmed-reservation`) \
                     VALUES(%s, %s, %s, %s)",
-                (startTime, endTime, parkingSpot, 0),
-            )
-            return f"Confirmed reservation for parking space {parkingSpot}. Start time: {startTime}, end time: {endTime}."
-        else:
-            return "The parking spot that you have selected is not available during specified time."
+            (startTime, endTime, parkingSpot, 0),
+        )
+
     except:
-        return "There was an issue with connection to database. Please try again later."
+        return {
+            "success": False,
+            "message": "There was an issue with connection to database. Please try again later.",
+        }
+
+    return {
+        "success": True,
+        "message": f"Confirmed reservation for parking space {parkingSpot}. Start time: {startTime}, end time: {endTime}.",
+    }
