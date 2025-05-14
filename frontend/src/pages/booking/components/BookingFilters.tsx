@@ -17,7 +17,7 @@ function BookingFilters({}: Props) {
 
   return (
     <div className={styles.container}>
-      <p className={styles.field}>
+      <p className=" field">
         <label>Data</label>
         <Calendar
           value={filters.date}
@@ -33,7 +33,7 @@ function BookingFilters({}: Props) {
       <div>
         {filters.date && (
           <div>
-            <p className={styles.field}>
+            <p className="field">
               <label>Godzina od:</label>
               <Calendar
                 timeOnly
@@ -49,7 +49,7 @@ function BookingFilters({}: Props) {
               />
             </p>
 
-            <p className={styles.field}>
+            <p className="field">
               <label>Godzina do:</label>
               <Calendar
                 timeOnly

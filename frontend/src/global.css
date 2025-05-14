@@ -3,9 +3,11 @@
 
   --light-bg: #f0dbd4;
   --light-color: black;
+  --light-color-muted: rgb(115, 115, 115);
 
   --dark-bg: #344152;
   --dark-color: white;
+  --dark-color-muted: rgb(212, 212, 212);
 
   --font-main: "Poppins", sans-serif;
 }
@@ -39,4 +41,9 @@ ul {
 .field {
   display: flex;
   flex-direction: column;
+  width: fit-content;
+}
+
+.info-text {
+  color: light-dark(var(--light-color-muted), var(--dark-color-muted));
 }

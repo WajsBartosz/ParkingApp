@@ -4,9 +4,3 @@
   align-items: center;
   background: yellow;
 }
-
-.field {
-  display: flex;
-  flex-direction: column;
-  width: fit-content;
-}

@@ -11,7 +11,7 @@ function BookingPage() {
 
       <BookingProvider>
         <div className={styles.container}>
-          <BookingFilters />
+          {/* <BookingFilters /> */}
           <BookingMap />
         </div>
       </BookingProvider>

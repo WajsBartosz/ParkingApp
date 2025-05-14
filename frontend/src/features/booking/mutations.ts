@@ -1,4 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  AnyUseMutationOptions,
+  useMutation,
+  UseMutationOptions,
+  useQueryClient,
+} from "@tanstack/react-query";
 import api from "../../lib/api";
 import { format } from "date-fns";
 
@@ -8,19 +13,19 @@ type BookParkingSpaceInput = {
   endTime: Date;
 };
 
-type BookParkingSpaceResult = {};
+type BookParkingSpaceResult = {
+  success: boolean;
+  message: string;
+};
 
 async function bookParkingSpace(
   input: BookParkingSpaceInput,
 ): Promise<BookParkingSpaceResult> {
-  const startTime = format(input.startTime, "yyyy-MM-dd HH:MM:SS");
-  const endTime = format(input.endTime, "yyyy-MM-dd HH:MM:SS");
-
   const response = await api.post("make-reservation", {
     json: {
       parkingSpot: input.parkingSpace,
-      startTime,
-      endTime,
+      startTime: input.startTime,
+      endTime: input.startTime,
     },
   });
 
