@@ -21,6 +21,7 @@ def insertIntoDB(db, query, params):
 
 
 def connectToDB(host, port, user, password, database):
+    print(host, port, user, password, database)
     db = mysql.connector.connect(
         host=host,
         port=port,
@@ -40,11 +41,11 @@ def checkDate(date, format):
         return False
 
 
-host="mysql"
+host=os.environ.get("DB_ADDRESS")
 port=3306
 user=os.environ.get("DB_USER")
 password=os.environ.get("DB_PASSWORD")
-database="parking-app"
+database=os.environ.get("DB_DATABASE")
 datetimeFormat="%Y-%m-%d %H:%M:%S"
 
 app = FastAPI()
