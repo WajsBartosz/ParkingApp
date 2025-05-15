@@ -1,8 +1,5 @@
+import { type ParkingSpace } from "../../../features/reservation/types";
 import styles from "./ParkingSpace.module.css";
-import { type ParkingSpace } from "../../../features/booking/types";
-import { Button } from "primereact/button";
-import { Sidebar } from "primereact/sidebar";
-import { useState } from "react";
 
 interface Props {
   space: ParkingSpace;

@@ -2,6 +2,24 @@ import { useQuery } from "@tanstack/react-query";
 import api from "../../lib/api";
 import { ParkingSpace } from "./types";
 
+type FetchActiveReservationResult = {
+  success: true;
+  reservation: any;
+};
+
+async function fetchActiveReservation(): Promise<FetchActiveReservationResult> {
+  const response = await api.get("reservation/active");
+
+  return response.json();
+}
+
+export function useActiveReservation() {
+  return useQuery({
+    queryKey: ["activeReservation"],
+    queryFn: fetchActiveReservation,
+  });
+}
+
 type FetchAllSpacesResult = ParkingSpace[];
 
 async function fetchAllSpaces(): Promise<FetchAllSpacesResult> {
@@ -13,7 +31,7 @@ async function fetchAllSpaces(): Promise<FetchAllSpacesResult> {
 export function useAllSpaces() {
   return useQuery({
     queryKey: ["fetchAllSpaces"],
-    queryFn: ({ queryKey }) => fetchAllSpaces(),
+    queryFn: fetchAllSpaces,
   });
 }
 

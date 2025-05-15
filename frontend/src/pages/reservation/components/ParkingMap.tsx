@@ -3,16 +3,16 @@ import { useEffect, useMemo, useState } from "react";
 import {
   useAllSpaces,
   useAvailableSpaces,
-} from "../../../features/booking/queries";
-import useBooking from "../providers/BookingProvider/hooks";
-import styles from "./BookingMap.module.css";
+} from "../../../features/reservation/queries";
+import useReservationContext from "../providers/ReservationProvider/hooks";
+import styles from "./ParkingMap.module.css";
 import ParkingSpace from "./ParkingSpace";
 import ReservationSidebar from "./ReservationSidebar";
 
 interface Props {}
 
-function BookingMap({}: Props) {
-  const { filters } = useBooking();
+function ParkingMap({}: Props) {
+  const { filters } = useReservationContext();
 
   const [selectedSpace, setSelectedSpace] = useState<ParkingSpace>();
 
@@ -71,4 +71,4 @@ function BookingMap({}: Props) {
   );
 }
 
-export default BookingMap;
+export default ParkingMap;

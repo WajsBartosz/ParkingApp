@@ -1,10 +1,10 @@
 import { Sidebar, SidebarProps } from "primereact/sidebar";
-import { ParkingSpace } from "../../../features/booking/types";
+import { ParkingSpace } from "../../../features/reservation/types";
 import { Button } from "primereact/button";
 
 import styles from "./ReservationSidebar.module.css";
-import { useBookParkingSpace } from "../../../features/booking/mutations";
-import useBooking from "../providers/BookingProvider/hooks";
+import { useBookParkingSpace } from "../../../features/reservation/mutations";
+import useReservationContext from "../providers/ReservationProvider/hooks";
 import { Calendar } from "primereact/calendar";
 import { useState } from "react";
 import { BlockUI } from "primereact/blockui";
@@ -15,7 +15,7 @@ interface Props extends SidebarProps {
 }
 
 function ReservationSidebar({ space, ...props }: Props) {
-  const { filters, setFilters } = useBooking();
+  const { filters, setFilters } = useReservationContext();
   const { mutate: bookParkingSpace, isPending } = useBookParkingSpace();
 
   const [timeFrom, setTimeFrom] = useState<Date>(new Date());
