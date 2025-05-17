@@ -17,11 +17,11 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "rg" {
   name     = "parking-app-rg"
-  location = "northeurope"
+  location = "francecentral"
 }
 
 resource "azurerm_mysql_flexible_server" "mysql" {
-  name                   = "parking-app-mysql-dsajoidsajiodsajio"
+  name                   = "parking-app-mysql-suqoskbj"
   resource_group_name    = azurerm_resource_group.rg.name
   location               = azurerm_resource_group.rg.location
   administrator_login    = ""
@@ -52,4 +52,12 @@ resource "azurerm_container_registry" "container_registry" {
   location            = azurerm_resource_group.rg.location
   sku                 = "Basic"
   admin_enabled       = true
+}
+
+resource "azurerm_service_plan" "parking-app-service-plan" {
+  name                = "parking-app-web-app-service-plan"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  os_type             = "Linux"
+  sku_name            = "B1"
 }
