@@ -144,7 +144,7 @@ def availablespaces(startTime: str = Query(description="Start time of reservatio
         raise HTTPException(status_code=412, detail="Start time and end time must be in YYYY-MM-DD HH:MM:SS format.")
     
 @app.post("/make-reservation")
-def makereservation(parkingSpot: str = Query("Parking spot which you would like to reserve"), startTime: str = Query(description="Start time of reservation (YYYY-MM-DD HH:MM:SS format)"), endTime: str = Query(description="End time of your reservation (YYYY-MM-DD HH:MM:SS format)")):
+def makereservation(parkingSpot: str = Query(description="Parking spot which you would like to reserve"), startTime: str = Query(description="Start time of reservation (YYYY-MM-DD HH:MM:SS format)"), endTime: str = Query(description="End time of your reservation (YYYY-MM-DD HH:MM:SS format)")):
     if checkDate(startTime, datetimeFormat) and checkDate(endTime, datetimeFormat):
         if startTime < endTime:
             currentDateTime=datetime.today()
