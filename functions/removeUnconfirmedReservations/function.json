@@ -1,0 +1,6 @@
+{
+  "schedule": "0 */30 * * * *",
+  "name": "mytimer",
+  "type": "timerTrigger",
+  "direction": "in"
+}
