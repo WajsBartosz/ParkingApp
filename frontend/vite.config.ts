@@ -5,7 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   server: {
     host: true,
-    port: 5173
+    port: 5173,
+    allowedHosts: ["parking-app-frontend.azurewebsites.net"]
   },
   plugins: [react()]
 })
