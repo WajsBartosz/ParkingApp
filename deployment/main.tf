@@ -38,7 +38,7 @@ resource "azurerm_mysql_flexible_database" "mysql" {
   collation           = "utf8_unicode_ci"
 }
 
-resource "azurerm_mysql_flexible_server_firewall_rule" "mysql_firewall" {
+resource "azurerm_mysql_flexible_server_firewall_rule" "mysql-firewall" {
   name                = "parking-app-fw-rule-allow"
   resource_group_name = azurerm_resource_group.rg.name
   server_name         = azurerm_mysql_flexible_server.mysql.name
@@ -46,7 +46,7 @@ resource "azurerm_mysql_flexible_server_firewall_rule" "mysql_firewall" {
   end_ip_address      = "255.255.255.255"
 }
 
-resource "azurerm_container_registry" "container_registry" {
+resource "azurerm_container_registry" "container-registry" {
   name                = "parkingAppContainerRegistry"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
@@ -60,4 +60,24 @@ resource "azurerm_service_plan" "parking-app-service-plan" {
   location            = azurerm_resource_group.rg.location
   os_type             = "Linux"
   sku_name            = "B1"
+}
+
+resource "azurerm_storage_account" "storage-account" {
+  name                     = "parkingappstorageaccount"
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+resource "azurerm_linux_function_app" "example" {
+  name                = "parking-app-function-app"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+
+  storage_account_name       = azurerm_storage_account.storage-account.name
+  storage_account_access_key = azurerm_storage_account.storage-account.primary_access_key
+  service_plan_id            = azurerm_service_plan.parking-app-service-plan.id
+
+  site_config {}
 }
