@@ -1,3 +1,2 @@
 mysql-connector-python
 fastapi[standard]
-datetime

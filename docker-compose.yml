@@ -21,7 +21,7 @@ services:
       - ./backend/endpoint.py:/code/app.py
     command:
       sh -c "pip install --no-cache-dir --upgrade -r /code/requirements.txt &&
-      sleep 5s && fastapi run /code/app.py"
+      sleep 2s && fastapi run /code/app.py"
   frontend:
     build:
       context: ./frontend
