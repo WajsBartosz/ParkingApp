@@ -8,6 +8,8 @@ import RootLayout from "./layouts/RootLayout.tsx";
 import ReservationPage from "./pages/reservation/ReservationPage.tsx";
 import { PrimeReactProvider } from "primereact/api";
 
+import { ToastContainer } from "react-toastify";
+
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 
 createRoot(document.getElementById("root")!).render(
@@ -22,6 +24,8 @@ createRoot(document.getElementById("root")!).render(
             </Route>
           </Routes>
         </BrowserRouter>
+
+        <ToastContainer position="top-center" />
       </PrimeReactProvider>
     </QueryClientProvider>
   </StrictMode>,

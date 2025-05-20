@@ -9,6 +9,8 @@ import { Calendar } from "primereact/calendar";
 import { useState } from "react";
 import { BlockUI } from "primereact/blockui";
 import { ProgressSpinner } from "primereact/progressspinner";
+import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 interface Props extends SidebarProps {
   space?: ParkingSpace;
@@ -39,11 +41,12 @@ function ReservationSidebar({ space, ...props }: Props) {
       },
       {
         onSuccess: (data) => {
-          console.log("Data:", data);
-          if (data.success) {
-            props.onHide();
-            // show a dialog
-          }
+          props.onHide();
+
+          toast(<div>Pomyślnie utworzono rezerwację</div>, {
+            type: "success",
+            theme: "colored",
+          });
         },
       },
     );
@@ -88,9 +91,9 @@ function ReservationSidebar({ space, ...props }: Props) {
             <label>
               <b>Godzina od</b>
             </label>
-            <p className=" info-text">
+            <span className=" info-text">
               Rezerwacja jest ważna 30 minut od wskazanej godziny
-            </p>
+            </span>
             <Calendar
               timeOnly
               value={timeFrom}

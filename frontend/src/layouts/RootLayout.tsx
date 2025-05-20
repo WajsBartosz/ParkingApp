@@ -3,7 +3,7 @@ import styles from "./RootLayout.module.css";
 
 function RootLayout() {
   return (
-    <div>
+    <div className={styles.container}>
       <nav className={styles["navbar"]}>
         <ul className={styles["navbar-list"]}>
           <li>
@@ -14,7 +14,10 @@ function RootLayout() {
           </li>
         </ul>
       </nav>
-      <Outlet />
+
+      <div className={styles["page-content"]}>
+        <Outlet />
+      </div>
     </div>
   );
 }

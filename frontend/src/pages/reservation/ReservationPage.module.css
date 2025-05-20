@@ -1,4 +1,5 @@
 .container {
-  padding: 128px;
-  background: purple;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }

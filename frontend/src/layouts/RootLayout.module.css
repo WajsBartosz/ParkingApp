@@ -1,8 +1,25 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
 .navbar {
+  position: sticky;
+  top: 0;
   background: var(--primary-color);
+  height: 60px;
+  flex: 0 0 auto;
 }
 
 .navbar-list {
   display: flex;
   gap: 16px;
+}
+
+.page-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-inline: 96px;
+  padding-block: 48px;
 }

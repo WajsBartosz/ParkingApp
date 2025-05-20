@@ -6,11 +6,11 @@ import ActiveReservation from "./components/ActiveReservation";
 
 function ReservationPage() {
   return (
-    <main>
+    <main className={styles.container}>
       <h1>Rezerwacja miejsca parkingowego</h1>
 
       <ReservationProvider>
-        <div className={styles.container}>
+        <div>
           <ActiveReservation />
           <ParkingMap />
         </div>
