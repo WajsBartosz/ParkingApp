@@ -1,5 +1,5 @@
-DB_USER=""
-DB_PASSWORD=""
+DB_USER="sqladmin"
+DB_PASSWORD="wwFu5bOYh3h2ji7P7LVA"
 DB_ADDRESS="parking-app-mysql-suqoskbj.mysql.database.azure.com"
 DB_DATABASE="parking-app"
 
