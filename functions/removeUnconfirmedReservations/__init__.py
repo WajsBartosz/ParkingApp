@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 import mysql.connector
 import azure.functions as func
 
@@ -15,11 +16,11 @@ def main(mytimer: func.TimerRequest) -> None:
             password=os.getenv("DB_PASSWORD"),
             database=os.getenv("DB_NAME")
         )
-
+ 
         cursor=db.cursor()
 
         cursor.execute(f"Select * from `reservations` \
-                        where `start` <= \"{newDate.strftime("%Y-%m-%d %H:%M:%S")}\" and `confirmed-reservation` = 0")
+                        where `start` <= '{newDate.strftime("%Y-%m-%d %H:%M:%S")}' and `confirmed-reservation` = 0")
         result=cursor.fetchall()
 
         for reservation in result:
