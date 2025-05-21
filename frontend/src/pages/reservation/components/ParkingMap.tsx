@@ -170,7 +170,14 @@ function ParkingMap({}: Props) {
             />
 
             {pillars.map((pillar) => (
-              <rect x={pillar.x} y={pillar.y} width={700} height={700} />
+              <rect
+                rx={100}
+                x={pillar.x}
+                y={pillar.y}
+                width={700}
+                height={700}
+                fill="grey"
+              />
             ))}
 
             {parkingSpaceRows.map((row, index) => (
@@ -181,6 +188,8 @@ function ParkingMap({}: Props) {
                 }}
                 x={row.x}
                 y={row.y}
+                stroke="grey"
+                strokeWidth={8}
               >
                 {row.spaces.map((spaceKey, spaceIndex) => {
                   const spaceData = allSpacesMap.get(spaceKey);
