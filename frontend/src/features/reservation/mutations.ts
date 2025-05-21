@@ -39,7 +39,7 @@ export function useBookParkingSpace() {
     mutationFn: bookParkingSpace,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["availableSpaces"],
+        queryKey: ["reservations"],
       });
     },
   });

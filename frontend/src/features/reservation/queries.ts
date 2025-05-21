@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "../../lib/api";
-import { ParkingSpace } from "./types";
+import { ParkingSpace, Reservation } from "./types";
 
 type FetchActiveReservationResult = {
   success: true;
@@ -68,5 +68,28 @@ export function useAvailableSpaces(params: FetchAvailableSpacesParams) {
     queryKey: ["availableSpaces"],
     queryFn: ({ queryKey }) => fetchAvailableSpaces(params),
     enabled: !!params.startTime && !!params.endTime,
+  });
+}
+
+export type FetchReservationsParams = {
+  startTime?: string;
+  endTime?: string;
+};
+
+export type FetchReservationsResult = {
+  success: true;
+  reservations: Reservation[];
+};
+
+async function fetchReservations(): Promise<FetchReservationsResult> {
+  const response = await api.get("reservations");
+
+  return response.json();
+}
+
+export function useReservations() {
+  return useQuery({
+    queryKey: ["reservations"],
+    queryFn: ({ queryKey }) => fetchReservations(),
   });
 }

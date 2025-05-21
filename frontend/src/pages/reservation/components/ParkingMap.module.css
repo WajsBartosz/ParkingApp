@@ -21,3 +21,24 @@
   max-width: 800px;
   max-height: 400px;
 }
+
+.space-vacant {
+  fill: var(--space-vacant);
+  cursor: pointer;
+}
+
+.space-vacant:hover {
+  fill: var(--space-vacant-hover);
+}
+
+.space-vacant-active {
+  fill: var(--space-vacant-active);
+}
+
+.space-reserved {
+  fill: var(--space-reserved);
+}
+
+.space-taken {
+  fill: var(--space-taken);
+}

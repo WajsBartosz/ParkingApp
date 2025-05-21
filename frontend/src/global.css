@@ -1,6 +1,7 @@
 :root {
   color-scheme: light dark;
 
+  /* Colors */
   --light-bg: #f5f5f5;
   --light-color: black;
   --light-color-muted: rgb(115, 115, 115);
@@ -9,6 +10,15 @@
   --dark-color: white;
   --dark-color-muted: rgb(212, 212, 212);
 
+  --space-vacant: #bbf7d0;
+  --space-vacant-hover: #86efac;
+  --space-vacant-active: #4ade80;
+  --space-reserved: #fef08a;
+  --space-taken: #fecaca;
+
+  --parking-icon: "#27a5ff";
+
+  /* Fonts */
   --font-main: "Poppins", sans-serif;
 }
 
