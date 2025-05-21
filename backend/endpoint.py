@@ -1,9 +1,18 @@
 import os
 
+from fastapi.exceptions import ValidationException
+from fastapi.responses import JSONResponse
 import mysql.connector
-from fastapi import Body, FastAPI, Query
+from fastapi import Body, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
+import mailtrap as mt
+from dotenv import load_dotenv
+from pydantic import BaseModel
+
+from mail import EmailValidationException, send_verification_email
+
+load_dotenv()
 
 
 def queryDB(db, query):
@@ -32,7 +41,7 @@ def connectToDB(host, port, user, password, database):
     return db
 
 
-host = "mysql"
+host = "localhost"
 port = 3306
 user = os.environ.get("DB_USER")
 password = os.environ.get("DB_PASSWORD")
@@ -67,24 +76,27 @@ def parkingspaces():
 
 @app.get("/reservations")
 def reservations():
+    result = []
+
     try:
         db = connectToDB(host, port, user, password, database)
         result = queryDB(db, "SELECT * FROM `reservations` ORDER BY `ID`")
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Database connection error")
 
-        jsonResponse = [
-            {
-                "ID": reservation[0],
-                "start": reservation[1],
-                "end": reservation[2],
-                "parking-space": reservation[3],
-                "confirmed-reservation": reservation[4],
-            }
-            for reservation in result
-        ]
+    reservations = [
+        {
+            "ID": reservation[0],
+            "start": reservation[1],
+            "end": reservation[2],
+            "parking-space": reservation[3],
+            "confirmed-reservation": reservation[4],
+        }
+        for reservation in result
+    ]
 
-        return jsonResponse
-    except:
-        return "There was an issue with connection to database. Please try again later."
+    return {"success": True, "reservations": reservations}
 
 
 @app.get("/get-available-spaces")
@@ -167,3 +179,30 @@ def makereservation(
         "success": True,
         "message": f"Confirmed reservation for parking space {parkingSpot}. Start time: {startTime}, end time: {endTime}.",
     }
+
+
+@app.exception_handler(EmailValidationException)
+async def unicorn_exception_handler(request: Request, exc: EmailValidationException):
+    return JSONResponse(
+        status_code=400,
+        content={"message": "Test"},
+    )
+
+
+class VerifyEmailBody(BaseModel):
+    email: str
+
+
+@app.post("/verify-email")
+def verify_email(body: VerifyEmailBody):
+    try:
+        send_verification_email(body.email)
+    except EmailValidationException as e:
+        raise HTTPException(
+            status_code=400, detail="Email nie pochodzi z domeny cdv.pl"
+        )
+    except Exception as e:
+        print("Mail error:", e)
+        raise HTTPException(status_code=500, detail="Unable to send verification email")
+
+    return {"success": True}
