@@ -79,5 +79,20 @@ resource "azurerm_linux_function_app" "example" {
   storage_account_access_key = azurerm_storage_account.storage-account.primary_access_key
   service_plan_id            = azurerm_service_plan.parking-app-service-plan.id
 
-  site_config {}
+  site_config {
+    application_stack {
+      python_version = "3.12"
+    }
+  }
+
+  app_settings = {
+    "WEBSITE_RUN_FROM_PACKAGE" = "1"
+    "FUNCTIONS_WORKER_RUNTIME" = "python"
+    "AzureWebJobsStorage"      = azurerm_storage_account.storage-account.primary_connection_string
+    "DB_HOST"                  = azurerm_mysql_flexible_server.mysql.fqdn
+    "DB_USER"                  = azurerm_mysql_flexible_server.mysql.administrator_login
+    "DB_PASSWORD"              = azurerm_mysql_flexible_server.mysql.administrator_password
+    "DB_NAME"                  = azurerm_mysql_flexible_database.mysql.name
+  }
 }
+
