@@ -16,3 +16,8 @@
   font-size: 29px;
   font-weight: 500;
 }
+
+.svg-container {
+  max-width: 800px;
+  max-height: 400px;
+}
