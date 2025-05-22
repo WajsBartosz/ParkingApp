@@ -1,0 +1,12 @@
+{
+  "connection_string": "",
+  "sensor_id": "",
+  
+  "heartbeat_seconds": 600,
+
+  "beam_count": 8,
+  "occupancy_threshold": 6,
+  "free_interval": 300,
+  "occupied_interval": 900,
+  "confirm_count": 3
+}
