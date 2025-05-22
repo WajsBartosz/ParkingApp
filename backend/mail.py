@@ -1,9 +1,17 @@
 import os
-from fastapi.exceptions import ValidationException
 import mailtrap as mt
-from pydantic import ValidationError
+
+from auth import generate_otp
+from jinja import jinja
 
 mailtrap_api_key = os.environ.get("MAILTRAP_API_KEY")
+
+
+def get_otp_email(otp: str):
+    template = jinja.get_template("otp-email.html")
+    rendered = template.render(otp=otp)
+
+    return rendered
 
 
 class EmailValidationException(Exception):
@@ -18,12 +26,15 @@ def send_verification_email(email: str):
     if not email.endswith("cdv.pl"):
         raise EmailValidationException("Podany adres email nie jest z domeny cdv.pl")
 
+    otp = generate_otp(email)
+    print(f"OTP: {otp}")
+
     mail = mt.Mail(
-        sender=mt.Address(email="hello@demomailtrap.co"),
+        sender=mt.Address(email="accounts@galacticode.dev"),
         to=[mt.Address(email=email)],
-        subject="Weryfikacja konta",
-        text="AAAAAAAAAAAAAAAAAAAAAA",
+        subject="Jednorazowy kod logowania",
+        html=get_otp_email(otp),
     )
 
-    client = mt.MailtrapClient(token=mailtrap_api_key)
-    client.send(mail)
+    # client = mt.MailtrapClient(token=mailtrap_api_key)
+    # client.send(mail)
