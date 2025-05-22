@@ -78,6 +78,33 @@ resource "azurerm_storage_account" "storage-account" {
   account_replication_type = "LRS"
 }
 
+
+variable "device_type_counts" {
+  description = "Map of sensor types to the number of simulator instances to be created"
+  type        = map(number)
+}
+
+resource "azurerm_iothub" "hub" {
+  name                = "IoT-Hub-Simulators-suqoskbj"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku {
+    name     = "B1"
+    capacity = 1
+  }
+}
+
+resource "azurerm_iothub_shared_access_policy" "iot_policy" {
+  name                = "functionAccess"
+  iothub_name         = azurerm_iothub.hub.name
+  resource_group_name = azurerm_resource_group.rg.name
+
+  registry_read   = true
+  registry_write  = false
+  service_connect = true
+  device_connect  = false
+}
+
 resource "azurerm_linux_function_app" "example" {
   name                = "parking-app-function-app"
   resource_group_name = azurerm_resource_group.rg.name
@@ -101,21 +128,7 @@ resource "azurerm_linux_function_app" "example" {
     "DB_USER"                  = azurerm_mysql_flexible_server.mysql.administrator_login
     "DB_PASSWORD"              = azurerm_mysql_flexible_server.mysql.administrator_password
     "DB_NAME"                  = azurerm_mysql_flexible_database.mysql.name
-  }
-}
-
-variable "device_type_counts" {
-  description = "Map of sensor types to the number of simulator instances to be created"
-  type        = map(number)
-}
-
-resource "azurerm_iothub" "hub" {
-  name                = "IoT-Hub-Simulators-suqoskbj"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  sku {
-    name     = "B1"
-    capacity = 1
+    "IOTHUB_CONNECTION" = azurerm_iothub_shared_access_policy.iot_policy.primary_connection_string
   }
 }
 
