@@ -3,7 +3,7 @@ import os
 
 from fastapi.responses import JSONResponse
 import mysql.connector
-from fastapi import Body, FastAPI, HTTPException, Query, Request
+from fastapi import Body, Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import mailtrap as mt
@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 
 
-from auth import jwt_required, login
+from auth import get_jwt_user, login
 from db import init_pool
 from mail import EmailValidationException, send_verification_email
 
@@ -83,8 +83,7 @@ def login_route(email: str = Body(), password: str = Body()):
 
 
 @app.get("/parking-spaces")
-@jwt_required
-def parkingspaces(request: Request):
+def parkingspaces(user=Depends(get_jwt_user)):
     try:
         db = connectToDB(host, port, user, password, database)
         result = queryDB(db, "SELECT * FROM `parking-spaces` ORDER BY `ID`")
@@ -99,8 +98,7 @@ def parkingspaces(request: Request):
 
 
 @app.get("/reservations")
-@jwt_required
-def reservations(request: Request):
+def reservations():
     result = []
 
     try:
@@ -153,9 +151,7 @@ def availablespaces(
 
 
 @app.post("/make-reservation")
-@jwt_required
 def makereservation(
-    request: Request,
     parkingSpot: str = Body("Parking spot which you would like to reserve"),
     startTime: datetime = Body(
         description="Start time of reservation (YYYY-MM-DD HH:MM:SS format)"

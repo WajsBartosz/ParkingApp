@@ -1,48 +1,33 @@
 import os
 import secrets
 import string
+
 from db import get_pool
 from datetime import datetime, timedelta
 from hashlib import sha256
 import jwt
-from fastapi import Request, HTTPException, status
-from functools import wraps
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 
 JWT_SECRET = os.environ.get("JWT_SECRET")
+ALGORITHM = "HS256"
+
+bearer_scheme = HTTPBearer()
 
 
-def jwt_required(func):
-    @wraps(func)
-    async def wrapper(*args, **kwargs):
-        request = None
-        for arg in args:
-            if isinstance(arg, Request):
-                request = arg
-                break
-        if not request:
-            request = kwargs.get("request")
-        if not request:
-            raise RuntimeError("Request parameter not found.")
-
-        auth_header = request.headers.get("Authorization")
-        if not auth_header or not auth_header.startswith("Bearer "):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Missing or invalid Authorization header",
-            )
-        token = auth_header.split(" ")[1]
-        try:
-            payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-        except jwt.ExpiredSignatureError:
-            raise HTTPException(status_code=401, detail="Token expired")
-        except jwt.InvalidTokenError:
-            raise HTTPException(status_code=401, detail="Invalid token")
-
-        kwargs["jwt_payload"] = payload
-        return await func(*args, **kwargs)
-
-    return wrapper
+def get_jwt_user(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+):
+    try:
+        payload = jwt.decode(
+            credentials.credentials, JWT_SECRET, algorithms=[ALGORITHM]
+        )
+        return payload
+    except jwt.PyJWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
 
 
 def hash_password(password: str):
@@ -86,7 +71,7 @@ def login(email: str, password: str):
         "user": email,
     }
 
-    token = jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+    token = jwt.encode(payload, JWT_SECRET, algorithm=ALGORITHM)
 
     return token
 
