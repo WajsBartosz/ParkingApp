@@ -1,6 +1,6 @@
+from contextlib import asynccontextmanager
 import os
 
-from fastapi.exceptions import ValidationException
 from fastapi.responses import JSONResponse
 import mysql.connector
 from fastapi import Body, FastAPI, HTTPException, Query, Request
@@ -10,6 +10,9 @@ import mailtrap as mt
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
+
+from auth import jwt_required, login
+from db import init_pool
 from mail import EmailValidationException, send_verification_email
 
 load_dotenv()
@@ -46,7 +49,15 @@ port = 3306
 user = os.environ.get("DB_USER")
 password = os.environ.get("DB_PASSWORD")
 database = "parking-app"
-app = FastAPI()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_pool()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 origins = ["http://localhost:3000", "http://localhost:5173"]
 
@@ -59,8 +70,21 @@ app.add_middleware(
 )
 
 
+@app.post("/login")
+def login_route(email: str = Body(), password: str = Body()):
+    token = None
+
+    try:
+        token = login(email, password)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=e)
+
+    return {"success": True, "jwt": token}
+
+
 @app.get("/parking-spaces")
-def parkingspaces():
+@jwt_required
+def parkingspaces(request: Request):
     try:
         db = connectToDB(host, port, user, password, database)
         result = queryDB(db, "SELECT * FROM `parking-spaces` ORDER BY `ID`")
@@ -75,7 +99,8 @@ def parkingspaces():
 
 
 @app.get("/reservations")
-def reservations():
+@jwt_required
+def reservations(request: Request):
     result = []
 
     try:
@@ -128,7 +153,9 @@ def availablespaces(
 
 
 @app.post("/make-reservation")
+@jwt_required
 def makereservation(
+    request: Request,
     parkingSpot: str = Body("Parking spot which you would like to reserve"),
     startTime: datetime = Body(
         description="Start time of reservation (YYYY-MM-DD HH:MM:SS format)"
