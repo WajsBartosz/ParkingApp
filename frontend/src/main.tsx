@@ -11,18 +11,32 @@ import { PrimeReactProvider } from "primereact/api";
 import { ToastContainer } from "react-toastify";
 
 import "primereact/resources/themes/lara-light-cyan/theme.css";
+import AuthProvider from "./features/auth/AuthProvider.tsx";
+import ProtectedRoute from "./features/auth/ProtectedRoute.tsx";
+import LoginPage from "./pages/login/Login.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <PrimeReactProvider>
         <BrowserRouter>
-          <Routes>
-            <Route element={<RootLayout />}>
-              <Route index path="/" element={<Home />} />
-              <Route path="/rezerwacja" element={<ReservationPage />} />
-            </Route>
-          </Routes>
+          <AuthProvider>
+            <Routes>
+              <Route element={<RootLayout />}>
+                {/* <Route index path="/" element={<Home />} /> */}
+                <Route path="/login" element={<LoginPage />} />
+
+                <Route
+                  path="/rezerwacja"
+                  element={
+                    <ProtectedRoute>
+                      <ReservationPage />
+                    </ProtectedRoute>
+                  }
+                />
+              </Route>
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
 
         <ToastContainer position="top-center" />

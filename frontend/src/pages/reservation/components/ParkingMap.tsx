@@ -102,6 +102,7 @@ function ParkingMap({}: Props) {
   const allSpacesMap = useMemo<Map<string, ParkingSpace>>(() => {
     if (!allSpacesData) return new Map([]);
 
+    console.log("all spaces:", allSpacesData);
     return new Map<string, ParkingSpace>(
       allSpacesData.map((space) => [space["parking-space"], space]),
     );

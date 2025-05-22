@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 
 from auth import get_jwt_user, login
-from db import init_pool
+from db import get_pool, init_pool
 from mail import EmailValidationException, send_verification_email
 
 load_dotenv()
@@ -22,6 +22,7 @@ def queryDB(db, query):
     cursor = db.cursor()
     cursor.execute(query)
     result = cursor.fetchall()
+    cursor.close()
 
     return result
 
@@ -33,13 +34,15 @@ def insertIntoDB(db, query, params):
 
 
 def connectToDB(host, port, user, password, database):
-    db = mysql.connector.connect(
-        host=host,
-        port=port,
-        user=user,
-        password=password,
-        database=database,
-    )
+    # db = mysql.connector.connect(
+    #     host=host,
+    #     port=port,
+    #     user=user,
+    #     password=password,
+    #     database=database,
+    # )
+
+    db = get_pool().get_connection()
 
     return db
 
@@ -70,16 +73,48 @@ app.add_middleware(
 )
 
 
+# @app.exception_handler(Exception)
+# async def global_exception_handler(request: Request, exc: Exception):
+#     return JSONResponse(status_code=500, content={"detail": exc})
+
+
 @app.post("/login")
 def login_route(email: str = Body(), password: str = Body()):
     token = None
 
     try:
-        token = login(email, password)
+        payload, token = login(email, password)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=e)
+        raise HTTPException(status_code=400, detail=str(e))
 
-    return {"success": True, "jwt": token}
+    return {"success": True, "user": payload, "token": token}
+
+
+@app.exception_handler(EmailValidationException)
+async def unicorn_exception_handler(request: Request, exc: EmailValidationException):
+    return JSONResponse(
+        status_code=400,
+        content={"message": "Test"},
+    )
+
+
+class VerifyEmailBody(BaseModel):
+    email: str
+
+
+@app.post("/verify-email")
+def verify_email(body: VerifyEmailBody):
+    try:
+        send_verification_email(body.email)
+    except EmailValidationException as e:
+        raise HTTPException(
+            status_code=400, detail="Email nie pochodzi z domeny cdv.pl"
+        )
+    except Exception as e:
+        print("Mail error:", e)
+        raise HTTPException(status_code=500, detail="Unable to send verification email")
+
+    return {"success": True}
 
 
 @app.get("/parking-spaces")
@@ -92,9 +127,29 @@ def parkingspaces(user=Depends(get_jwt_user)):
             {"ID": record[0], "parking-space": record[1]} for record in result
         ]
 
+        db.close()
+
         return jsonResponse
-    except:
+    except Exception as e:
+        print(f"Db exception: {e}")
         return "There was an issue with connection to database. Please try again later."
+
+
+@app.get("/reservation/active")
+def active(user=Depends(get_jwt_user)):
+    sql = "SELECT * FROM reservations WHERE email = %s"
+    db = get_pool().get_connection()
+    cursor = db.cursor()
+
+    cursor.execute(sql, (user["email"],))
+    result = cursor.fetchone()
+
+    print(f"active result: {result}")
+
+    cursor.close()
+    db.close()
+
+    return {"success": True, "reservation": result}
 
 
 @app.get("/reservations")
@@ -104,6 +159,8 @@ def reservations():
     try:
         db = connectToDB(host, port, user, password, database)
         result = queryDB(db, "SELECT * FROM `reservations` ORDER BY `ID`")
+
+        db.close()
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Database connection error")
@@ -202,30 +259,3 @@ def makereservation(
         "success": True,
         "message": f"Confirmed reservation for parking space {parkingSpot}. Start time: {startTime}, end time: {endTime}.",
     }
-
-
-@app.exception_handler(EmailValidationException)
-async def unicorn_exception_handler(request: Request, exc: EmailValidationException):
-    return JSONResponse(
-        status_code=400,
-        content={"message": "Test"},
-    )
-
-
-class VerifyEmailBody(BaseModel):
-    email: str
-
-
-@app.post("/verify-email")
-def verify_email(body: VerifyEmailBody):
-    try:
-        send_verification_email(body.email)
-    except EmailValidationException as e:
-        raise HTTPException(
-            status_code=400, detail="Email nie pochodzi z domeny cdv.pl"
-        )
-    except Exception as e:
-        print("Mail error:", e)
-        raise HTTPException(status_code=500, detail="Unable to send verification email")
-
-    return {"success": True}
