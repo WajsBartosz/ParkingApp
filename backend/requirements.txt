@@ -1,3 +1,7 @@
-mysql-connector-python
-fastapi[standard]
+bcrypt=4.3.0
 datetime
+fastapi[standard]
+Jinja2==3.1.6
+mailtrap==2.1.0
+mysql-connector-python
+PyJWT==2.10.1
