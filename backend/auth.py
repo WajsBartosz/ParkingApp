@@ -59,7 +59,7 @@ def login(email: str, password: str):
 
     current_time = datetime.now()
 
-    sql = "SELECT * FROM otp WHERE email = %s AND expires_at > %s AND used = 0 ORDER BY id DESC"
+    sql = "SELECT * FROM otp WHERE email = %s AND expires_at > %s AND used = 0 ORDER BY id DESC LIMIT 1"
     cursor.execute(sql, (email, current_time))
 
     result = cursor.fetchone()
