@@ -2,7 +2,6 @@ import logging
 import os
 import json
 import datetime
-from zoneinfo import ZoneInfo
 import mysql.connector
 from azure.functions import EventHubEvent
 from typing import List
@@ -11,7 +10,7 @@ from typing import List
 
 
 def main(events: List[EventHubEvent]):
-    currentDate=datetime.datetime.now(ZoneInfo("Europe/Warsaw"))
+    currentDate=datetime.datetime.now()
     db=mysql.connector.connect(
             host=os.getenv("DB_HOST"),
             user=os.getenv("DB_USER"),
@@ -26,26 +25,33 @@ def main(events: List[EventHubEvent]):
             logging.info(f"received message {message_body}")
             data = json.loads(message_body)
             occupied = data.get('occupied')
-            sensor_id = data.get('spot_id')
-            parking_place = f"A{int(sensor_id.split("-")[1])}"
+            parking_place = data.get('spot_id')
             logging.info(parking_place)
-            if occupied is not None:
-                if not occupied:
-                    cursor.execute(f"Select `ID` From `reservations` \
-                                   WHERE `start` <= '{currentDate.strftime("%Y-%m-%d %H:%M:%S")}' and `end` >= '{currentDate.strftime("%Y-%m-%d %H:%M:%S")}' and `confirmed-reservation` = 0 and `parking-space` = \"{parking_place}\"")
-                    # cursor.execute(f"Select `ID` From `reservations` where `parking-space` = \"A1\"")
-                    result=cursor.fetchall()
-                    logging.info(result)
-                    for ID in result:
-                        cursor.execute(f"UPDATE `parking-app`.`reservations` \
-                                        SET `confirmed-reservation` = 1 \
-                                        WHERE `ID` = {ID[0]}")
-                        db.commit()
-                        logging.info(f"Reservation with ID: {ID[0]} has been confirmed.")
-                    logging.info(f"{result}")
-                logging.info(f"Variables: occupied: {occupied}, parking_place: {parking_place}")
+            if occupied:
+                logging.info(f"Parking place: {parking_place} is occupied, changing status")
+                cursor.execute(f"Select `ID` From `reservations` \
+                                WHERE `start` <= '{currentDate.strftime("%Y-%m-%d %H:%M:%S")}' and `end` >= '{currentDate.strftime("%Y-%m-%d %H:%M:%S")}' and `confirmed-reservation` = 0 and `parking-space` = \"{parking_place}\"")
+                result=cursor.fetchall()
+                logging.info(result)
+                for ID in result:
+                    cursor.execute(f"UPDATE `parking-app`.`reservations` \
+                                    SET `confirmed-reservation` = 1 \
+                                    WHERE `ID` = {ID[0]}")
+                    db.commit()
+                    logging.info(f"Reservation with ID: {ID[0]} has been confirmed.")
             else:
-                logging.info("Not all necessary details were sent")
+                logging.info(f"Parking place: {parking_place} is not occupied, changing status")
+                cursor.execute(f"Select `ID` From `reservations` \
+                                WHERE `start` <= '{currentDate.strftime("%Y-%m-%d %H:%M:%S")}' and `end` >= '{currentDate.strftime("%Y-%m-%d %H:%M:%S")}' and `confirmed-reservation` = 1 and `parking-space` = \"{parking_place}\"")
+                result=cursor.fetchall()
+                logging.info(result)
+                for ID in result:
+                    cursor.execute(f"UPDATE `parking-app`.`reservations` \
+                                    SET `confirmed-reservation` = 0 \
+                                    WHERE `ID` = {ID[0]}")
+                    db.commit()
+                    logging.info(f"Reservation with ID: {ID[0]} has confirmation set to 0.")
+
         except Exception as e:
             logging.error(f"Error during reading message: {e}")
 
