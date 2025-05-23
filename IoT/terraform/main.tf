@@ -128,7 +128,6 @@ resource "azurerm_linux_function_app" "example" {
     "DB_USER"                  = azurerm_mysql_flexible_server.mysql.administrator_login
     "DB_PASSWORD"              = azurerm_mysql_flexible_server.mysql.administrator_password
     "DB_NAME"                  = azurerm_mysql_flexible_database.mysql.name
-    "IOTHUB_CONNECTION" = azurerm_iothub_shared_access_policy.iot_policy.primary_connection_string
   }
 }
 

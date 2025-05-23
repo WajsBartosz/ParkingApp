@@ -112,7 +112,6 @@ def availablespaces(startTime: str = Query(description="Start time of reservatio
             if currentDateTime.strftime(datetimeFormat) < startTime:
                 try:
                     db=connectToDB(host, port, user, password, database)
-                    print("dupa")
                     result=queryDB(db, 
                         f"SELECT `parking-space` FROM `parking-app`.`parking-spaces` \
                         WHERE `parking-space` NOT IN ( \

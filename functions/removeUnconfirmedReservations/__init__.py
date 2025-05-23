@@ -1,13 +1,14 @@
 import datetime
 import logging
 import os
+from zoneinfo import ZoneInfo
 import mysql.connector
 import azure.functions as func
 
 def main(mytimer: func.TimerRequest) -> None:
     logging.info("Starting function for removing unconfirmed reservations")
     try:
-        currentDate=datetime.datetime.now()
+        currentDate=datetime.datetime.now(ZoneInfo("Europe/Warsaw"))
         subMinutes=datetime.timedelta(minutes = 30)
         newDate=currentDate-subMinutes
         db=mysql.connector.connect(
@@ -16,7 +17,7 @@ def main(mytimer: func.TimerRequest) -> None:
             password=os.getenv("DB_PASSWORD"),
             database=os.getenv("DB_NAME")
         )
- 
+        logging.info(newDate)
         cursor=db.cursor()
 
         cursor.execute(f"Select * from `reservations` \
