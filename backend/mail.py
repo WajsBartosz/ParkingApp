@@ -30,7 +30,6 @@ def send_verification_email(email: str):
         raise EmailValidationException("Podany adres email nie jest z domeny cdv.pl")
 
     otp = generate_otp(email)
-    print(f"OTP: {otp}")
 
     mail = mt.Mail(
         sender=mt.Address(email="accounts@galacticode.dev"),
@@ -39,5 +38,5 @@ def send_verification_email(email: str):
         html=get_otp_email(otp),
     )
 
-    # client = mt.MailtrapClient(token=mailtrap_api_key)
-    # client.send(mail)
+    client = mt.MailtrapClient(token=mailtrap_api_key)
+    client.send(mail)

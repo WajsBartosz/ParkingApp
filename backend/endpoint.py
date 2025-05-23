@@ -100,7 +100,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-origins = ["http://localhost:3000", "http://localhost:5173", "http://localhost:4173"]
+origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:4173",
+    "https://parking-app-frontend.azurewebsites.net"
+    "https://parking-app-frontend.azurewebsites.net",
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -159,8 +165,10 @@ def verify_email(body: VerifyEmailBody):
 
 @app.get("/parking-spaces")
 def parkingspaces(user=Depends(get_jwt_user)):
+    db = connectToDB()
+
     try:
-        db = connectToDB()
+
         result = queryDB(db, "SELECT * FROM `parking-spaces` ORDER BY `ID`")
 
         jsonResponse = [
@@ -173,6 +181,8 @@ def parkingspaces(user=Depends(get_jwt_user)):
     except Exception as e:
         print(f"Db exception: {e}")
         return "There was an issue with connection to database. Please try again later."
+    finally:
+        db.close()
 
 
 @app.get("/reservations")

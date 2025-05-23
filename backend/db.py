@@ -21,7 +21,7 @@ def init_pool():
     if db_pool is None:
         db_pool = pooling.MySQLConnectionPool(
             pool_name="dbpool",
-            pool_size=5,
+            pool_size=10,
             pool_reset_session=True,
             host=host,
             database=database,
