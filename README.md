@@ -13,11 +13,12 @@ Download repository
 
     git clone https://github.com/WajsBartosz/ParkingApp.git
 
-Navigate into Deployment folder
+Navigate into IoT/terraform folder
 
-Before running any script, be sure that you are logged into Azure CLI. To do it type
+Before running any script, be sure that you are logged into Azure CLI and you have exported Subscription ID. To do it type two commands
     
     az login
+    export ARM_SUBSCRIPTION_ID=$(az account show --query id --output tsv)
 
 After logged in, open main.tf in any text editor and add login and password mysql database in lines 27 and 28. After change it should look like this
 
@@ -34,9 +35,13 @@ You can validate terraform file by
 
 If everything is correct, run command
 
-    terraform apply
+    terraform apply -auto-approve
 
 Type "yes", when you will be asked to confirm creation resources in azure
+
+To add sensors run command
+
+    bash post_deploy.sh
 
 Once terraform is finished, navigate into Azure Container Registry -> Settings -> Access Keys. Here copy 
 
@@ -56,6 +61,8 @@ Once you are logged in to ACR, open pushWebApp.sh in text editor and add same lo
 After changing password run bash script by command
 
     bash pushWebApp.sh
+
+Once script is finished navigate into IoT Hub -> 
 
 # Parking app
 
