@@ -2,6 +2,8 @@ import ky from "ky";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+console.log("Backend URL:", backendUrl);
+
 const api = ky.extend({
   hooks: {
     beforeRequest: [
