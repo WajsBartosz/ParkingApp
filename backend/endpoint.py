@@ -104,7 +104,7 @@ origins = [
     "http://localhost:3000",
     "http://localhost:5173",
     "http://localhost:4173",
-    "https://parking-app-frontend.azurewebsites.net"
+    "http://parking-app-frontend.azurewebsites.net",
     "https://parking-app-frontend.azurewebsites.net",
 ]
 
