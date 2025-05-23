@@ -19,6 +19,7 @@ const api = ky.extend({
     ],
   },
   prefixUrl: backendUrl,
+  credentials: "include",
 });
 
 export default api;
