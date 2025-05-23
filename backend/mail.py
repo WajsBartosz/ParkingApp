@@ -1,8 +1,11 @@
 import os
+from dotenv import load_dotenv
 import mailtrap as mt
 
 from auth import generate_otp
 from jinja import jinja
+
+load_dotenv()
 
 mailtrap_api_key = os.environ.get("MAILTRAP_API_KEY")
 
