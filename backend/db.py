@@ -1,12 +1,15 @@
 import os
 from typing import Union
+from dotenv import load_dotenv
 from mysql.connector import pooling
 
-host = "localhost"
+load_dotenv()
+
+host = os.environ.get("DB_HOST")
 port = 3306
 user = os.environ.get("DB_USER")
 password = os.environ.get("DB_PASSWORD")
-database = "parking-app"
+database = os.environ.get("DB_NAME")
 
 
 db_pool: Union[None, pooling.MySQLConnectionPool] = None
