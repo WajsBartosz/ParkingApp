@@ -167,7 +167,10 @@ def reservations():
 
     db = connectToDB()
     try:
-        result = queryDB(db, "SELECT * FROM `reservations` ORDER BY `ID`")
+        result = queryDB(
+            db,
+            "SELECT * FROM `reservations` WHERE `confirmed-reservation` != 1 AND end > CURRENT_TIMESTAMP ORDER BY `ID`",
+        )
 
     except Exception as e:
         print(f"Error: {e}")
