@@ -5,6 +5,8 @@ import {
   SetStateAction,
   useState,
 } from "react";
+import { Reservation } from "../../../../features/reservation/types";
+import { useReservations } from "../../../../features/reservation/queries";
 
 type ReservationFilters = {
   date?: Date;
@@ -17,6 +19,9 @@ type ReservationFilters = {
 export type ReservationContextType = {
   filters: Partial<ReservationFilters>;
   setFilters: Dispatch<SetStateAction<Partial<ReservationFilters>>>;
+  reservations: Reservation[];
+  activeSpace: string | undefined;
+  setActiveSpace: Dispatch<SetStateAction<string | undefined>>;
 };
 
 export const ReservationContext = createContext<
@@ -30,9 +35,17 @@ interface Props {
 function ReservationProvider({ children }: Props) {
   const [filters, setFilters] = useState<Partial<ReservationFilters>>({});
 
+  const { data: reservationsData, isFetching: isFetchingReservations } =
+    useReservations();
+
+  const [activeSpace, setActiveSpace] = useState<string>();
+
   const contextValue: ReservationContextType = {
     filters,
     setFilters,
+    reservations: reservationsData?.reservations || [],
+    activeSpace,
+    setActiveSpace,
   };
 
   return (

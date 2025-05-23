@@ -4,11 +4,11 @@ import { ParkingSpace, Reservation } from "./types";
 
 type FetchActiveReservationResult = {
   success: true;
-  reservation: any;
+  reservation: Reservation;
 };
 
 async function fetchActiveReservation(): Promise<FetchActiveReservationResult> {
-  const response = await api.get("reservation/active");
+  const response = await api.get("reservations/active");
 
   return response.json();
 }
@@ -59,14 +59,9 @@ async function fetchAvailableSpaces(
 }
 
 export function useAvailableSpaces(params: FetchAvailableSpacesParams) {
-  // console.log("params:", params);
-
-  const isEnabled = !!params.startTime && !!params.endTime;
-
-  // console.log({ isEnabled });
   return useQuery({
     queryKey: ["availableSpaces"],
-    queryFn: ({ queryKey }) => fetchAvailableSpaces(params),
+    queryFn: () => fetchAvailableSpaces(params),
     enabled: !!params.startTime && !!params.endTime,
   });
 }
@@ -90,6 +85,6 @@ async function fetchReservations(): Promise<FetchReservationsResult> {
 export function useReservations() {
   return useQuery({
     queryKey: ["reservations"],
-    queryFn: ({ queryKey }) => fetchReservations(),
+    queryFn: fetchReservations,
   });
 }

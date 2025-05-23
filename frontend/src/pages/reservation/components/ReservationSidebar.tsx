@@ -1,27 +1,24 @@
+import { Button } from "primereact/button";
 import { Sidebar, SidebarProps } from "primereact/sidebar";
 import { ParkingSpace } from "../../../features/reservation/types";
-import { Button } from "primereact/button";
 
-import styles from "./ReservationSidebar.module.css";
-import { useBookParkingSpace } from "../../../features/reservation/mutations";
-import useReservationContext from "../providers/ReservationProvider/hooks";
-import { Calendar } from "primereact/calendar";
-import { useState } from "react";
 import { BlockUI } from "primereact/blockui";
+import { Calendar } from "primereact/calendar";
 import { ProgressSpinner } from "primereact/progressspinner";
-import { useNavigate } from "react-router";
+import { useState } from "react";
 import { toast } from "react-toastify";
+import { useBookParkingSpace } from "../../../features/reservation/mutations";
+import styles from "./ReservationSidebar.module.css";
 
 interface Props extends SidebarProps {
   space?: ParkingSpace;
 }
 
 function ReservationSidebar({ space, ...props }: Props) {
-  const { filters, setFilters } = useReservationContext();
   const { mutate: bookParkingSpace, isPending } = useBookParkingSpace();
 
   const [timeFrom, setTimeFrom] = useState<Date>(new Date());
-  const [timeTo, setTimeTo] = useState<Date>(() => {
+  const [timeTo] = useState<Date>(() => {
     const currentDate = new Date();
     const hourLater = new Date().setHours(currentDate.getHours() + 8);
 
@@ -37,10 +34,9 @@ function ReservationSidebar({ space, ...props }: Props) {
       {
         parkingSpace: space["parking-space"],
         startTime: timeFrom,
-        endTime: timeTo,
       },
       {
-        onSuccess: (data) => {
+        onSuccess: () => {
           props.onHide();
 
           toast(<div>Pomyślnie utworzono rezerwację</div>, {

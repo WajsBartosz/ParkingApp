@@ -169,7 +169,7 @@ def reservations():
     try:
         result = queryDB(
             db,
-            "SELECT * FROM `reservations` WHERE `confirmed-reservation` != 1 AND end > CURRENT_TIMESTAMP ORDER BY `ID`",
+            "SELECT * FROM `reservations` WHERE `confirmed-reservation` == 1 OR (`confirmed-reservation` == 1 AND end > CURRENT_TIMESTAMP) ORDER BY `ID`",
         )
 
     except Exception as e:

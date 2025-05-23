@@ -3,6 +3,7 @@ import ReservationProvider from "./providers/ReservationProvider/ReservationProv
 
 import styles from "./ReservationPage.module.css";
 import ActiveReservation from "./components/ActiveReservation";
+import PendingReservations from "./components/PendingReservations";
 
 function ReservationPage() {
   return (
@@ -12,7 +13,11 @@ function ReservationPage() {
       <ReservationProvider>
         <div className={styles["layout"]}>
           <ParkingMap />
-          <ActiveReservation />
+
+          <div className={styles.reservations}>
+            <ActiveReservation />
+            <PendingReservations />
+          </div>
         </div>
       </ReservationProvider>
     </main>

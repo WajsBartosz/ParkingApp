@@ -1,13 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  useAllSpaces,
-  useAvailableSpaces,
-  useReservations,
-} from "../../../features/reservation/queries";
+import { useMemo, useRef, useState } from "react";
+import { useAllSpaces } from "../../../features/reservation/queries";
+import { ParkingSpace } from "../../../features/reservation/types";
 import useReservationContext from "../providers/ReservationProvider/hooks";
 import styles from "./ParkingMap.module.css";
 import ReservationSidebar from "./ReservationSidebar";
-import { ParkingSpace } from "../../../features/reservation/types";
 
 const ICON_BLUE = "var(--parking-icon)";
 const ROAD_MARK = "white";
@@ -18,8 +14,6 @@ type ParkingSpaceMeta = {
   x: number;
   y: number;
 };
-
-type ParkingSpaceMap = Map<string, ParkingSpaceMeta>;
 
 type ParkingSpaceRow = {
   x: number;
@@ -87,15 +81,14 @@ const parkingSpaceRows: ParkingSpaceRow[] = [
 interface Props {}
 
 function ParkingMap({}: Props) {
+  const { reservations } = useReservationContext();
+
   const parkingRef = useRef<SVGSVGElement>(null);
 
   const [selectedSpace, setSelectedSpace] = useState<ParkingSpace>();
 
   const { data: allSpacesData, isFetching: isFetchingAllSpaces } =
     useAllSpaces();
-
-  const { data: reservationsData, isFetching: isFetchingReservations } =
-    useReservations();
 
   const allSpacesMap = useMemo<Map<string, ParkingSpace>>(() => {
     if (!allSpacesData) return new Map([]);
@@ -105,32 +98,22 @@ function ParkingMap({}: Props) {
     );
   }, [allSpacesData]);
 
-  useEffect(() => {
-    console.log({ allSpacesData });
-  }, [allSpacesData]);
-
-  useEffect(() => {
-    console.log({ reservationsData });
-  }, [reservationsData]);
-
   const [reservedSpaces, takenSpaces] = useMemo<
     [Set<string>, Set<string>]
   >(() => {
     const reservedSpaces = new Set<string>();
     const takenSpaces = new Set<string>();
 
-    if (reservationsData) {
-      for (const reservation of reservationsData.reservations) {
-        if (reservation["confirmed-reservation"]) {
-          takenSpaces.add(reservation["parking-space"]);
-        } else {
-          reservedSpaces.add(reservation["parking-space"]);
-        }
+    for (const reservation of reservations) {
+      if (reservation["confirmed-reservation"]) {
+        takenSpaces.add(reservation["parking-space"]);
+      } else {
+        reservedSpaces.add(reservation["parking-space"]);
       }
     }
 
     return [reservedSpaces, takenSpaces];
-  }, [reservationsData]);
+  }, [reservations]);
 
   return (
     <div className={styles.container}>

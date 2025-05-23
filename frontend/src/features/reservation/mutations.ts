@@ -4,7 +4,6 @@ import api from "../../lib/api";
 type BookParkingSpaceInput = {
   parkingSpace: string;
   startTime: Date;
-  endTime: Date;
 };
 
 type BookParkingSpaceResult = {
@@ -15,11 +14,10 @@ type BookParkingSpaceResult = {
 async function bookParkingSpace(
   input: BookParkingSpaceInput,
 ): Promise<BookParkingSpaceResult> {
-  const response = await api.post("make-reservation", {
+  const response = await api.post("reservations", {
     json: {
       parkingSpot: input.parkingSpace,
       startTime: input.startTime,
-      endTime: input.startTime,
     },
   });
 
@@ -31,9 +29,13 @@ export function useBookParkingSpace() {
 
   return useMutation({
     mutationFn: bookParkingSpace,
+
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["reservations"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["activeReservation"],
       });
     },
   });
