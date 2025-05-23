@@ -3,10 +3,12 @@
 
   /* Colors */
   --light-bg: #f5f5f5;
+  --light-bg-darker: #d1d1d1;
   --light-color: black;
   --light-color-muted: rgb(115, 115, 115);
 
   --dark-bg: #344152;
+  --dark-bg-darker: black;
   --dark-color: white;
   --dark-color-muted: rgb(212, 212, 212);
 
@@ -27,12 +29,12 @@ body {
   --primary-color-light: gray;
   --primary-color-dark: black;
 
-  --primary-color: light-dark(
-    var(--primary-color-light),
-    var(--primary-color-dark)
+  --background: light-dark(var(--light-bg), var(--dark-bg));
+  --background-darker: light-dark(
+    var(--light-bg-darker),
+    var(--dark-bg-darker)
   );
 
-  --background: light-dark(var(--light-bg), var(--dark-bg));
   --color: light-dark(var(--light-color), var(--dark-color));
 
   background-color: var(--background);

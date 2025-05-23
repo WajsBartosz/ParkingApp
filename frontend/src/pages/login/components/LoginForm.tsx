@@ -1,6 +1,6 @@
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 import styles from "./LoginForm.module.css";
 import { Message } from "primereact/message";
@@ -14,6 +14,8 @@ import { HTTPError } from "ky";
 function LoginForm() {
   const { login } = useAuth();
 
+  const passwordInput = useRef<HTMLInputElement>(null);
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
@@ -22,6 +24,12 @@ function LoginForm() {
 
   const { mutate: verifyEmail, isPending: isVeryfing } = useVerifyEmail();
   const { mutate: loginMutation, isPending: isLoginPending } = useLogin();
+
+  useEffect(() => {
+    if (passwordSent) {
+      passwordInput.current?.focus();
+    }
+  }, [passwordSent]);
 
   function handleSendPassword() {
     setError(undefined);
@@ -71,13 +79,26 @@ function LoginForm() {
     );
   }
 
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    handleLogin();
+  }
+
   return (
     <div>
-      <div className={styles.container}>
+      <form onSubmit={handleSubmit} className={styles.container}>
         {error && (
           <div>
             <Message severity="error" text={error} />
           </div>
+        )}
+
+        {passwordSent && (
+          <Message
+            severity="info"
+            text="Na twój adres mailowy zostało wysłane jednorazowe hasło. Wprowadź je poniżej"
+          />
         )}
 
         <span className="field">
@@ -89,42 +110,41 @@ function LoginForm() {
         </span>
 
         {!passwordSent && (
-          <Button
-            disabled={isVeryfing || email.length === 0}
-            onClick={handleSendPassword}
-          >
-            Wyślij jednorazowe hasło
-          </Button>
+          <div>
+            <Button
+              disabled={isVeryfing || email.length === 0}
+              onClick={handleSendPassword}
+            >
+              Wyślij jednorazowe hasło
+            </Button>
+          </div>
         )}
 
         {isVeryfing && (
           <div>
-            <ProgressSpinner /> Trwa wysyłanie maila...
+            <ProgressSpinner style={{ width: "24px", height: "24px" }} /> Trwa
+            wysyłanie maila...
           </div>
         )}
 
         {passwordSent && (
           <div className={styles.otp}>
-            <Message
-              severity="info"
-              text="Na twój adres mailowy zostało wysłane jednorazowe hasło. Wprowadź je poniżej"
-            />
-
             <span className="field">
-              <label>Jednorazowe hasło</label>
+              <label>Hasło</label>
               <InputText
+                ref={passwordInput}
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.currentTarget.value)}
               />
             </span>
 
-            <Button disabled={password.length < 1} onClick={handleLogin}>
+            <Button type="submit" disabled={password.length < 1}>
               Zaloguj
             </Button>
           </div>
         )}
-      </div>
+      </form>
     </div>
   );
 }

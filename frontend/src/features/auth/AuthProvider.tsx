@@ -22,7 +22,10 @@ function AuthProvider({ children }: Props) {
     navigate("/");
   };
 
-  const logout = () => {};
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
 
   const contextValue: AuthContextType = {
     user,

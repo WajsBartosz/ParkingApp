@@ -14,7 +14,7 @@ const useLocalStorage = (keyName: string, defaultValue: any) => {
       return defaultValue;
     }
   });
-  const setValue = (newValue) => {
+  const setValue = (newValue: any) => {
     try {
       window.localStorage.setItem(keyName, JSON.stringify(newValue));
     } catch (err) {
