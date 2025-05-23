@@ -143,13 +143,10 @@ Then re-apply Terraform.
 
 ### Modify Sensor Behavior
 
-To adjust timings, precision, etc., edit:
+To adjust timings, precision, etc., edit `IoT_Hub/sensor_ir/config.json`:
 
 ```json
-# IoT_Hub/sensor_ir/config.json
-{
-  ...
-  
+{  
   "heartbeat_seconds": 600,
   "beam_count": 8,
   "occupancy_threshold": 6,

@@ -1,4 +1,4 @@
-import os, sys, json, random, logging, argparse
+import os, sys, json, random, logging, argparse, re, requests
 from datetime import datetime
 
 # Ensure project root is on PYTHONPATH for base_simulator import
@@ -22,9 +22,9 @@ class IRSimulator(BaseSimulator):
         cfg = self.config
 
         # Total number of IR beams in the sensor
-        self.beam_count = cfg.get("beam_count", 8)
+        self.beam_count = cfg.get("beam_count", 10)
         # Minimum beam hits to consider spot occupied
-        self.occupancy_threshold = cfg.get("occupancy_threshold", 6)
+        self.occupancy_threshold = cfg.get("occupancy_threshold", 5)
 
         # Time intervals (seconds) for free vs occupied sampling
         self.free_interval = cfg.get("free_interval", 5 * 60)
@@ -39,6 +39,44 @@ class IRSimulator(BaseSimulator):
 
         # Start sampling at free interval
         self.interval = self.free_interval
+    
+    # Send a formatted notification to Slack via webhook integration.
+    # Requires the SLACK_WEBHOOK_URL environment variable to be set.
+    # If missing, the method silently skips the notification.
+    # The message includes the sensor_id and a custom status message,
+    # and is posted to the configured Slack channel.
+    #
+    # Example payload:
+    #   ":satellite: [<sensor_id>] Spot <spot_id> is now *occupied*"
+    def _notify_slack(self, msg: str):
+        url = os.getenv("SLACK_WEBHOOK_URL", "")
+        if not url:
+            return
+        payload = {"text": f":satellite: [{self.sensor_id}] {msg}"}
+        try:
+            requests.post(url, json=payload, timeout=2)
+        except Exception as e:
+            logger.warning(f"[{self.sensor_id}] Slack webhook error: {e}")
+    
+    # Map a sensor_id ending with digits to a spot_id prefixed with 'A'.
+    # '<sensor_type>_01' -> 'A1', '<sensor_type>_02' -> 'A2'.
+    # If no trailing digits found, returns original sensor_id.
+    def _map_sensor_to_spot(self) -> str:
+        match = re.search(r"(\d+)$", self.sensor_id)
+        if match:
+            number = int(match.group(1))
+            return f"A{number}"
+        return self.sensor_id
+    
+    # Determine occupied flag based on spot number parity
+    def _determine_occupied_by_parity(self, spot_id: str) -> bool:
+        # Extract numeric part after 'A'
+        try:
+            number = int(spot_id.lstrip('A'))
+            return (number % 2 == 0)
+        except ValueError:
+            # If no valid number, default to False
+            return False
 
     # Generate and return a payload indicating current occupancy state
     def generate_payload(self) -> dict:
@@ -86,12 +124,19 @@ class IRSimulator(BaseSimulator):
         # Adjust next sampling interval based on updated state
         self.interval = self.occupied_interval if self.state == "OCCUPIED" else self.free_interval
 
+        # Map sensor to spot
+        spot_id = self._map_sensor_to_spot()
+        # Determine occupied flag based on parity
+        occupied = self._determine_occupied_by_parity(spot_id)
         # Prepare timestamp in local time
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+        if occupied:
+            self._notify_slack(f"Spot {spot_id} is now *occupied*")
+
         # Construct message payload
         payload = {
-            "spot_id": self.sensor_id,
+            "spot_id": spot_id,
             "occupied": occupied,
             "timestamp": now
         }

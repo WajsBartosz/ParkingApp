@@ -11,7 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
 # Define default application log level (DEBUG, INFO, WARNING, ERROR)
-ENV LOG_LEVEL=ERROR
+ENV LOG_LEVEL=INFO
 
 # Configure system timezone to Europe/Warsaw
 ENV TZ=Europe/Warsaw

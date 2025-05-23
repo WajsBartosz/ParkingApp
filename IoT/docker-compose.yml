@@ -8,5 +8,10 @@ services:
     # Assign a fixed name to the container instance
     container_name: iot-simulators
 
+    # Environment variables passed into the container at runtime
+    environment:
+    #  - LOG_LEVEL=DEBUG
+    #  - SLACK_WEBHOOK_URL=https://hooks.slack.com/services/…
+
     # Always restart the container on failure or exit
-    restart: always
+    restart: Always

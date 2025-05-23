@@ -33,7 +33,6 @@ variable "device_type_counts" {
   type        = map(number)
 }
 
-
 # Azure region for all resources
 variable "location" {
   description = "Azure region where resources will be deployed"
