@@ -81,10 +81,11 @@ CREATE TABLE `reservations` (
   `end` datetime NOT NULL,
   `parking-space` varchar(20) DEFAULT NULL,
   `confirmed-reservation` tinyint(1) DEFAULT '0',
+  `email` varchar(128) NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `parking-space` (`parking-space`),
   CONSTRAINT `reservations_ibfk_1` FOREIGN KEY (`parking-space`) REFERENCES `parking-spaces` (`parking-space`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -93,7 +94,6 @@ CREATE TABLE `reservations` (
 
 LOCK TABLES `reservations` WRITE;
 /*!40000 ALTER TABLE `reservations` DISABLE KEYS */;
-INSERT INTO `reservations` VALUES (1,'2025-04-28 10:00:00','2025-04-28 18:00:00','A7',0),(2,'2025-04-28 09:00:00','2025-04-28 17:00:00','A4',0),(3,'2025-04-28 08:00:00','2025-04-28 16:00:00','A10',0);
 /*!40000 ALTER TABLE `reservations` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -106,4 +106,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-23  9:07:06
+-- Dump completed on 2025-05-23  9:11:14
