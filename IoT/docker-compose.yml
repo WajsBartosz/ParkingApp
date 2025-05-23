@@ -1,0 +1,12 @@
+services:
+  iot_simulators:
+    # Build the Docker image from the ./IoT_Hub directory
+    build:
+      context: ./IoT_Hub
+      dockerfile: Dockerfile
+
+    # Assign a fixed name to the container instance
+    container_name: iot-simulators
+
+    # Always restart the container on failure or exit
+    restart: always

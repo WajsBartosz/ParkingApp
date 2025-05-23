@@ -17,9 +17,9 @@ from mail import EmailValidationException, send_verification_email
 load_dotenv()
 
 
-def queryDB(db, query):
+def queryDB(db, query, params=None):
     cursor = db.cursor()
-    cursor.execute(query)
+    cursor.execute(query, params)
     result = cursor.fetchall()
     cursor.close()
 

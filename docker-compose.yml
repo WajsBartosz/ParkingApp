@@ -9,27 +9,27 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./database:/docker-entrypoint-initdb.d
-  # python:
-  #   image: python:latest
-  #   container_name: backend
-  #   env_file:
-  #     - ./.env
-  #   ports:
-  #     - '80:8000'
-  #   volumes:
-  #     - ./backend/requirements.txt:/code/requirements.txt
-  #     - ./backend/endpoint.py:/code/app.py
-  #   command:
-  #     sh -c "pip install --no-cache-dir --upgrade -r /code/requirements.txt &&
-  #     sleep 5s && fastapi run /code/app.py"
-#  frontend:
-#    build:
-#      context: ./frontend
-#      dockerfile: Dockerfile
-#    ports:
-#      - '5173:5173'
-#    volumes:
-#      - ./frontend:/app
-#      - /app/node_modules
-#    environment:
-#      - NODE_ENV=development
+  python:
+    image: python:latest
+    container_name: backend
+    env_file:
+      - ./.env
+    ports:
+      - '80:8000'
+    volumes:
+      - ./backend/requirements.txt:/code/requirements.txt
+      - ./backend/endpoint.py:/code/app.py
+    command:
+      sh -c "pip install --no-cache-dir --upgrade -r /code/requirements.txt &&
+      sleep 2s && fastapi run /code/app.py"
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development

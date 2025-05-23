@@ -1,3 +1,69 @@
+# Deployment
+
+## Requiremenets
+
+* Terraform
+* Azure CLI
+* Azure Functions Core Tools
+* Docker
+
+## How to deploy app
+
+Download repository
+
+    git clone https://github.com/WajsBartosz/ParkingApp.git
+
+Navigate into IoT/terraform folder
+
+Before running any script, be sure that you are logged into Azure CLI and you have exported Subscription ID. To do it type two commands
+    
+    az login
+    export ARM_SUBSCRIPTION_ID=$(az account show --query id --output tsv)
+
+After logged in, open main.tf in any text editor and add login and password mysql database in lines 27 and 28. After change it should look like this
+
+    administrator_login    = "SQLDBAdmin"
+    administrator_password = "Password123!"
+
+Now initiate terraform by
+
+    terraform init
+
+You can validate terraform file by
+
+    terraform validate
+
+If everything is correct, run command
+
+    terraform apply -auto-approve
+
+Type "yes", when you will be asked to confirm creation resources in azure
+
+To add sensors run command
+
+    bash post_deploy.sh
+
+Once terraform is finished, navigate into Azure Container Registry -> Settings -> Access Keys. Here copy 
+
+    Login server
+    Username
+    password
+
+Once you copied all 3 strings type in your terminal window
+
+    docker login "Login server" -u "Username" -p "password"
+
+Once you are logged in to ACR, open pushWebApp.sh in text editor and add same login and password that you provided in terraform file in first two lines. It should look like this
+
+    DB_USER="SQLDBAdmin"
+    DB_PASSWORD="Password123!"
+
+After changing password run bash script by command
+
+    bash pushWebApp.sh
+
+Once script is finished navigate into IoT Hub -> 
+
 # Parking app
 
 Jesteśmy firmą która pracuje w biurze (około 30 biurek). Posiadamy do tego parking na 5 miejsc. Problem polega na tym, że mamy więcej chętnych osób do miejsc parkingowych niż iż rzeczywiście posiadamy.
