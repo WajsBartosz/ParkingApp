@@ -9,4 +9,5 @@ export type Reservation = {
   end: string;
   "parking-space": string;
   "confirmed-reservation": 0 | 1;
+  email: string;
 };

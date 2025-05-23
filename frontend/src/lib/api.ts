@@ -6,8 +6,6 @@ const api = ky.extend({
       (request) => {
         const token = window.localStorage.getItem("token");
 
-        console.log({ token });
-
         if (!token) {
           return;
         }
