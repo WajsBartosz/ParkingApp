@@ -65,12 +65,24 @@ def query_active_reservation(email: str) -> Union[Dict[str, Any], None]:
             "email": result[5],
         }
 
-    print(f"Active reservation: {result}")
-
     cursor.close()
     db.close()
 
     return result
+
+
+def delete_reservation(id: int):
+    db = get_pool().get_connection()
+    cursor = db.cursor(buffered=True)
+
+    sql = "DELETE FROM reservations WHERE ID = %s"
+
+    cursor.execute(sql, (id,))
+
+    db.commit()
+
+    cursor.close()
+    db.close()
 
 
 host = "localhost"
