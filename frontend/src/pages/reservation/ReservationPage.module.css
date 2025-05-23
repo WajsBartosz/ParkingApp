@@ -3,3 +3,9 @@
   flex-direction: column;
   height: 100%;
 }
+
+.layout {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}

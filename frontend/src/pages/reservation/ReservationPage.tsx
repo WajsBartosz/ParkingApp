@@ -10,9 +10,9 @@ function ReservationPage() {
       <h1>Rezerwacja miejsca parkingowego</h1>
 
       <ReservationProvider>
-        <div>
-          <ActiveReservation />
+        <div className={styles["layout"]}>
           <ParkingMap />
+          <ActiveReservation />
         </div>
       </ReservationProvider>
     </main>
