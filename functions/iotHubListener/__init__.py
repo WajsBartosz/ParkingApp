@@ -11,7 +11,7 @@ from typing import List
 
 
 def main(events: List[EventHubEvent]):
-    currentDate=datetime.datetime.now(ZoneInfo("Europe/Warsaw"))
+    currentDate=datetime.datetime.now(ZoneInfo())
     db=mysql.connector.connect(
             host=os.getenv("DB_HOST"),
             user=os.getenv("DB_USER"),

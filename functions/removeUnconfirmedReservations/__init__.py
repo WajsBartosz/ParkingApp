@@ -8,7 +8,7 @@ import azure.functions as func
 def main(mytimer: func.TimerRequest) -> None:
     logging.info("Starting function for removing unconfirmed reservations")
     try:
-        currentDate=datetime.datetime.now(ZoneInfo("Europe/Warsaw"))
+        currentDate=datetime.datetime.now(ZoneInfo())
         subMinutes=datetime.timedelta(minutes = 30)
         newDate=currentDate-subMinutes
         db=mysql.connector.connect(
