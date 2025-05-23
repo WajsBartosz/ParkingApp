@@ -169,7 +169,7 @@ def reservations():
     try:
         result = queryDB(
             db,
-            "SELECT * FROM `reservations` WHERE `confirmed-reservation` == 1 OR (`confirmed-reservation` == 1 AND end > CURRENT_TIMESTAMP) ORDER BY `ID`",
+            "SELECT * FROM `reservations` WHERE `confirmed-reservation` = 1 OR (`confirmed-reservation` = 0 AND end > CURRENT_TIMESTAMP) ORDER BY `ID`",
         )
 
     except Exception as e:
@@ -257,6 +257,23 @@ def get_active_reservation(user=Depends(get_jwt_user)):
     active = query_active_reservation(user["email"])
 
     return {"success": True, "reservation": active}
+
+
+@app.delete("/reservations/active")
+def delete_active_reservation(user=Depends(get_jwt_user)):
+    active = query_active_reservation(user["email"])
+
+    if active is None:
+        raise HTTPException(status_code=400, detail="Nie posiadasz aktywnej rezerwacji")
+
+    try:
+        delete_reservation(active["ID"])
+    except:
+        raise HTTPException(
+            status_code=500, detail="Usuwanie rezerwacji nie powiodło się"
+        )
+
+    return {"success": True}
 
 
 @app.get("/get-available-spaces")

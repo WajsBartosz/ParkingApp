@@ -40,7 +40,7 @@ createRoot(document.getElementById("root")!).render(
           </AuthProvider>
         </BrowserRouter>
 
-        <ToastContainer position="top-center" />
+        <ToastContainer position="bottom-right" theme="light" />
       </PrimeReactProvider>
     </QueryClientProvider>
   </StrictMode>,

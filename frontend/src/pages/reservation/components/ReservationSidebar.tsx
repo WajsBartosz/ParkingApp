@@ -41,7 +41,6 @@ function ReservationSidebar({ space, ...props }: Props) {
 
           toast(<div>Pomyślnie utworzono rezerwację</div>, {
             type: "success",
-            theme: "colored",
           });
         },
       },

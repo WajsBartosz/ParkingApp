@@ -4,6 +4,7 @@ import { ParkingSpace } from "../../../features/reservation/types";
 import useReservationContext from "../providers/ReservationProvider/hooks";
 import styles from "./ParkingMap.module.css";
 import ReservationSidebar from "./ReservationSidebar";
+import { toast } from "react-toastify";
 
 const ICON_BLUE = "var(--parking-icon)";
 const ROAD_MARK = "white";
@@ -81,7 +82,7 @@ const parkingSpaceRows: ParkingSpaceRow[] = [
 interface Props {}
 
 function ParkingMap({}: Props) {
-  const { reservations } = useReservationContext();
+  const { reservations, activeSpace } = useReservationContext();
 
   const parkingRef = useRef<SVGSVGElement>(null);
 
@@ -281,6 +282,14 @@ function ParkingMap({}: Props) {
                       height={row.direction == "horizontal" ? width : height}
                       onClick={() => {
                         if (isDisabled) {
+                          return;
+                        }
+
+                        if (activeSpace) {
+                          toast(<p>Posiadasz już aktywną rezerwację</p>, {
+                            toastId: "alreadyBooked",
+                            type: "error",
+                          });
                           return;
                         }
 
