@@ -175,8 +175,6 @@ def parkingspaces(user=Depends(get_jwt_user)):
             {"ID": record[0], "parking-space": record[1]} for record in result
         ]
 
-        db.close()
-
         return jsonResponse
     except Exception as e:
         print(f"Db exception: {e}")
