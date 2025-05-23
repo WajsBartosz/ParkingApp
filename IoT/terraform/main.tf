@@ -28,6 +28,12 @@ resource "azurerm_resource_group" "rg" {
   location = "francecentral"
 }
 
+# Azure region for all resources
+variable "location" {
+  description = "Azure region where resources will be deployed"
+  type        = string
+  default     = "uksouth"
+
 resource "azurerm_mysql_flexible_server" "mysql" {
   name                   = "parking-app-mysql-suqoskbj"
   resource_group_name    = azurerm_resource_group.rg.name

@@ -2,5 +2,5 @@
 
 device_type_counts = {
   # Infrared (IR) sensors: create 10 simulator instances
-  ir = 2
+  ir = 4
 }

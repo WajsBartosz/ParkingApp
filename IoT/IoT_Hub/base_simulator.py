@@ -14,9 +14,11 @@ CONFIG_SCHEMA = {
     "type": "object",
     "properties": {
         "connection_string": {"type": "string", "minLength": 1},
-        "sensor_id": {"type": "string", "minLength": 1}
+        "sensor_id": {"type": "string", "minLength": 1},
+        "heartbeat_seconds": {"type": "integer", "minimum": 1}
     },
-    "required": ["connection_string", "sensor_id"]
+    "required": ["connection_string", "sensor_id"],
+    "additionalProperties": True
 }
 
 # Base class for IoT sensor simulators
@@ -46,7 +48,7 @@ class BaseSimulator:
         self.sensor_id = cfg["sensor_id"]
         # Optional timing parameters with defaults
         self.interval = cfg.get("interval_seconds", 10)
-        self.heartbeat = cfg.get("heartbeat_seconds", 300)
+        self.heartbeat = cfg.get("heartbeat_seconds", 600)
         self._running = True
 
         # Create IoT Hub client from the connection string
@@ -55,6 +57,25 @@ class BaseSimulator:
         )
         logger.info(f"[{self.sensor_id}] Simulator initialized")
 
+    # Start a background thread to update the device reported properties
+    # with the latest heartbeat timestamp in Azure IoT Hub device twin.
+    def start_heartbeat(self):
+        def heartbeat_loop():
+            while self._running:
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                try:
+                    # Update twin reported properties for last status update
+                    reported = {"lastStatusUpdate": timestamp}
+                    self.client.patch_twin_reported_properties(reported)
+                    logger.debug(f"[{self.sensor_id}] Twin reported properties updated: {reported}")
+                except Exception as e:
+                    logger.error(f"[{self.sensor_id}] Error updating twin: {e}")
+                time.sleep(self.heartbeat)
+
+        thread = threading.Thread(target=heartbeat_loop, daemon=True)
+        thread.start()
+        logger.info(f"[{self.sensor_id}] Heartbeat thread started")
+    
     # Internal send method with exponential backoff retry
     def _send(self, payload: dict, props: dict):
         if not self._running:
@@ -83,24 +104,6 @@ class BaseSimulator:
                 else:
                     time.sleep(delay)
                     delay = min(delay * 2, 30)
-
-    # Start a background thread to send heartbeat messages periodically
-    def start_heartbeat(self):
-        def heartbeat_loop():
-            while self._running:
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                payload = {
-                    "sensor_id": self.sensor_id,
-                    "type": "heartbeat",
-                    "timestamp": timestamp
-                }
-                logger.debug(f"[{self.sensor_id}] Sending heartbeat: {json.dumps(payload)}")
-                self._send(payload, {"type": "heartbeat"})
-                time.sleep(self.heartbeat)
-
-        thread = threading.Thread(target=heartbeat_loop, daemon=True)
-        thread.start()
-        logger.info(f"[{self.sensor_id}] Heartbeat thread started")
 
     # Main run loop: start heartbeat and send data messages at regular intervals
     def run(self):
