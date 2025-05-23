@@ -6,6 +6,7 @@
 * Azure CLI
 * Azure Functions Core Tools
 * Docker
+* IoT Hub extension for Azure CLI
 
 ## How to deploy app
 
@@ -25,6 +26,14 @@ After logged in, open main.tf in any text editor and add login and password mysq
     administrator_login    = "SQLDBAdmin"
     administrator_password = "Password123!"
 
+Also change character coding by running command
+
+    find . -type f -exec dos2unix {} \;
+
+If you do not have it installed, you can install it via
+
+    sudo apt install dos2unix
+
 Now initiate terraform by
 
     terraform init
@@ -39,8 +48,9 @@ If everything is correct, run command
 
 Type "yes", when you will be asked to confirm creation resources in azure
 
-To add sensors run command
+To add sensors run commands
 
+    export SLACK_WEBHOOK_URL="https://hooks.slack.com/..."
     bash post_deploy.sh
 
 Once terraform is finished, navigate into Azure Container Registry -> Settings -> Access Keys. Here copy 
@@ -62,7 +72,12 @@ After changing password run bash script by command
 
     bash pushWebApp.sh
 
-Once script is finished navigate into IoT Hub -> 
+Once script is finished navigate into IoT Hub -> Hub settings -> Built-in endpoints and copy Event Hub-compatible endpoint string.
+Once you copied it, navigate into function app -> Settings -> Environment variables and create new variable names
+
+    IOTHUB_CONNECTION
+
+and as a value paste a string that you copied in IoT Hub
 
 # Parking app
 
