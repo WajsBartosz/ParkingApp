@@ -1,6 +1,6 @@
 import ky from "ky";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = "https://parking-app-backend.azurewebsites.net";
 
 console.log("Backend URL:", backendUrl);
 
