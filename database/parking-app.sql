@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `otp`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `otp` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` timestamp NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT (now()),
   `expires_at` timestamp NOT NULL,
   `password` varchar(256) NOT NULL DEFAULT '',
   `email` varchar(128) NOT NULL DEFAULT '',
@@ -106,4 +106,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-23  9:11:14
+-- Dump completed on 2025-05-23  9:18:47
