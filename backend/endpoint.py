@@ -150,7 +150,9 @@ def verify_email(body: VerifyEmailBody):
         )
     except Exception as e:
         print("Mail error:", e)
-        raise HTTPException(status_code=500, detail="Unable to send verification email")
+        raise HTTPException(
+            status_code=500, detail=f"Unable to send verification email: {e}"
+        )
 
     return {"success": True}
 
