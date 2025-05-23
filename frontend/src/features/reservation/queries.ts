@@ -86,5 +86,6 @@ export function useReservations() {
   return useQuery({
     queryKey: ["reservations"],
     queryFn: fetchReservations,
+    refetchInterval: 1000 * 60 * 2,
   });
 }
