@@ -1,5 +1,7 @@
 import ky from "ky";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 const api = ky.extend({
   hooks: {
     beforeRequest: [
@@ -14,7 +16,7 @@ const api = ky.extend({
       },
     ],
   },
-  prefixUrl: "http://127.0.0.1:8000",
+  prefixUrl: backendUrl,
 });
 
 export default api;
