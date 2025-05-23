@@ -6,6 +6,8 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-COPY endpoint.py app.py
+COPY . . 
 
-CMD ["sh", "-c", "sleep 5 && uvicorn app:app --host 0.0.0.0 --port 80"]
+EXPOSE 80:80
+
+CMD ["sh", "-c", "sleep 5 && uvicorn endpoint:app --host 0.0.0.0 --port 80"]

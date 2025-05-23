@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
-    allowedHosts: ["parking-app-frontend.azurewebsites.net"]
+    allowedHosts: ['parking-app-frontend.azurewebsites.net']
   },
   plugins: [react()]
 })
