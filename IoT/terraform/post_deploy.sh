@@ -10,7 +10,9 @@
 
 set -euo pipefail
 
-echo ">>> post_deploy.sh starting..."
+export SLACK_WEBHOOK_URL="${SLACK_WEBHOOK_URL:-}"
+
+echo ">>> POST DEPLOY starting..."
 
 # Verify required CLI tools are available
 echo "Checking prerequisites..."
@@ -121,7 +123,9 @@ az container create \
   --azure-file-volume-account-name "$SA" \
   --azure-file-volume-account-key "$STORAGE_KEY" \
   --azure-file-volume-mount-path "IoT_Hub/share" \
-  --environment-variables LOG_LEVEL=ERROR \
+  --environment-variables \
+    LOG_LEVEL=INFO \
+    SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL" \
   --only-show-errors \
   >/dev/null
 echo "-> container created"
