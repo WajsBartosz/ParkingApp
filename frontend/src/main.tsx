@@ -24,16 +24,17 @@ createRoot(document.getElementById("root")!).render(
             <Routes>
               <Route element={<RootLayout />}>
                 {/* <Route index path="/" element={<Home />} /> */}
-                <Route path="/login" element={<LoginPage />} />
 
                 <Route
-                  path="/rezerwacja"
+                  index
+                  path="/"
                   element={
                     <ProtectedRoute>
                       <ReservationPage />
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/login" element={<LoginPage />} />
               </Route>
             </Routes>
           </AuthProvider>

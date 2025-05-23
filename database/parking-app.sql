@@ -1,4 +1,5 @@
--- MySQL dump 10.13  Distrib 9.3.0, for Linux (x86_64)
+/*M!999999\- enable the sandbox mode */ 
+-- MariaDB dump 10.19  Distrib 10.6.22-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: parking-app
 -- ------------------------------------------------------
@@ -7,7 +8,7 @@
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
+/*!40101 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -16,12 +17,39 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `otp`
+--
+
+DROP TABLE IF EXISTS `otp`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `otp` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NOT NULL,
+  `expires_at` timestamp NOT NULL,
+  `password` varchar(256) NOT NULL DEFAULT '',
+  `email` varchar(128) NOT NULL DEFAULT '',
+  `used` tinyint NOT NULL DEFAULT (0),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `otp`
+--
+
+LOCK TABLES `otp` WRITE;
+/*!40000 ALTER TABLE `otp` DISABLE KEYS */;
+/*!40000 ALTER TABLE `otp` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `parking-spaces`
 --
 
 DROP TABLE IF EXISTS `parking-spaces`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `parking-spaces` (
   `ID` int NOT NULL AUTO_INCREMENT,
   `parking-space` varchar(20) NOT NULL,
@@ -46,7 +74,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `reservations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reservations` (
   `ID` int NOT NULL AUTO_INCREMENT,
   `start` datetime NOT NULL,
@@ -78,4 +106,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-25 21:21:02
+-- Dump completed on 2025-05-23  9:07:06

@@ -19,7 +19,7 @@ function AuthProvider({ children }: Props) {
     localStorage.setItem("token", data.token);
     setUser(data.user);
 
-    navigate("/rezerwacja");
+    navigate("/");
   };
 
   const logout = () => {};
