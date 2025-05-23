@@ -1,0 +1,48 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.navbar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  gap: 16px;
+  background: var(--background-darker);
+  height: 60px;
+  flex: 0 0 auto;
+  align-items: center;
+  align-content: center;
+  padding-inline: 16px;
+}
+
+.navbar-list {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  align-items: center;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.account-info {
+  margin-left: auto;
+}
+
+.user-data {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-content {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-inline: 96px;
+  padding-block: 48px;
+}
