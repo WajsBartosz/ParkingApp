@@ -142,7 +142,7 @@ az iot hub monitor-events --hub-name IoT-Hub-Simulators
 
 ```json
 {
-  "spot_id": A1,
+  "spot_id": "A1",
   "occupied": true,
   "timestamp": "2000-12-31 12:34:56"
 }
