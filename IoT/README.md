@@ -75,7 +75,7 @@ After cloning the repo:
 
 > Use VS Code: click `CRLF` in the bottom-right and choose `LF`.
 
-or
+*or*
 
 ```bash
 find . -type f -exec dos2unix {} \;
@@ -296,7 +296,6 @@ docker-compose down -v
 
 Use the commands below to create and activate a Python virtual environment and install dependencies.
 
-```html
 <table>
   <thead>
     <tr>
@@ -327,7 +326,6 @@ deactivate</code></pre>
     </tr>
   </tbody>
 </table>
-```
 
 ---
 
