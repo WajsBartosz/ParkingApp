@@ -9,7 +9,7 @@ services:
     container_name: iot-simulators
 
     # Environment variables passed into the container at runtime
-    environment:
+    # environment:
     #  - LOG_LEVEL=DEBUG
     #  - SLACK_WEBHOOK_URL=https://hooks.slack.com/services/…
 

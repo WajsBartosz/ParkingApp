@@ -1,39 +1,35 @@
+
 # Parking App IoT Simulator
 
-This repository contains everything you need to deploy an Azure-based IoT simulation environment for a parking application. It provisions cloud infrastructure using Terraform, builds a Docker container with sensor simulators, and deploys it using Azure Container Instances.
+This project provides a full Azure-based IoT simulation environment for a parking application. It uses Terraform for cloud infrastructure provisioning, Docker for sensor simulation containers, and Azure CLI for monitoring and deployment.
 
 ---
 
 ## Table of Contents
 
-1. [Repository Structure](#repository-structure)  
-2. [Prerequisites](#prerequisites)  
-3. [Deployment Overview](#deployment-overview)  
-4. [Step-by-Step Guide](#step-by-step-guide)  
-   1. [Clone the Repository](#clone-the-repository)  
-   2. [Convert Line Endings](#convert-line-endings)  
-   3. [Authenticate to Azure](#authenticate-to-azure)  
-   4. [Initialize and Apply Terraform](#initialize-and-apply-terraform)  
-   5. [Run Post-Deploy Script](#run-post-deploy-script)  
-   6. [Verify Device Telemetry](#verify-device-telemetry)  
-5. [Configuration Notes](#configuration-notes)  
-6. [Local Development (Optional)](#local-development-optional)  
-7. [Cleanup](#cleanup)  
+1. [Repository Structure](#repository-structure)
+2. [Requirements](#requirements)
+3. [Setup Instructions](#setup-instructions)
+4. [Configuration Notes](#configuration-notes)
+5. [Local Development (Python Environment)](#local-development-python-environment)
+6. [Local Development (Docker)](#local-development-docker)
+7. [Cleanup](#cleanup)
 
 ---
 
 ## Repository Structure
 
-```
-IoT/
+```bash
+Azure/
 ├── terraform/
-│   ├── main.tf                     # Terraform configuration (IoT Hub, ACR, ACI, etc.)
-│   ├── terraform.tfvars            # Input variables (device_type_counts)
-│   └── post_deploy.sh              # Script to generate devices.conf
+│   ├── main.tf                       # Terraform configuration (IoT Hub, ACR, ACI, etc.)
+│   ├── terraform.tfvars              # Input variables (device_type_counts)
+│   └── post_deploy.sh                # Script to generate file with device connection strings
 │
 ├── IoT_Hub/
 │   ├── share/
-│   │   └── devices.conf            # Generated device connection strings
+│   │   └── devices.conf              # Generated device connection strings
+│   ├── .dockerignore
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   ├── entrypoint.py
@@ -42,134 +38,296 @@ IoT/
 │   └── sensor_ir/
 │       ├── sensor_ir_simulator.py
 │       ├── config.json
-│       └── config-*.json          # Generated per device (entrypoint.py)
+│       └── config-*.json            # Generated configs per device
 │
-└── docker-compose.yml             # Local dev only
+├── .gitignore
+└── docker-compose.yml               # Local dev only
 ```
 
 ---
 
-## Prerequisites
+## Requirements
 
-- **Linux** or **Windows** with **WSL**
-- **Visual Studio Code** (recommended)
-- **Azure CLI**
-- **Terraform**
-- **Docker Desktop**
+- **Operating System**:
+  - **POSIX**-compliant (*Linux*/*macOS* or *WSL*)
+  - **Windows** (*PowerShell* or *Windows Terminal*)
 
-Ensure all tools are available in your terminal and you have an Azure subscription with sufficient permissions.
+- **Required Tools**:
+  - [Python 3.12+](https://www.python.org/downloads/)
+  - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)  
+    with *IoT Hub* extension:
+
+    ```bash
+    az extension add --name azure-iot
+    ```
+
+  - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+  - [Terraform](https://developer.hashicorp.com/terraform/downloads)
+  - [Visual Studio Code](https://code.visualstudio.com/) (recommended)
 
 ---
 
-## Deployment Overview
+## Setup Instructions
 
-1. Provision infrastructure: IoT Hub, ACR, ACI, etc.
-2. Build Docker image and push it to ACR
-3. Generate device configuration (`devices.conf`)
-4. Deploy container simulator to Azure
-5. Monitor messages sent to IoT Hub
+### Convert Line Endings to LF
 
----
+After cloning the repo:
 
-## Step-by-Step Guide
+> Use VS Code: click `CRLF` in the bottom-right and choose `LF`.
 
-### 1. Convert Line Endings (CRLF → LF)
+or
 
-**Important:** Ensure all files use Unix-style LF endings. You can convert using VS Code:
-
-1. Open each `.sh`, `.py`, `.tf`, etc.
-2. Click bottom-right in VS Code (`CRLF`)
-3. Change to `LF` and save
-
-Alternatively, run:
 ```bash
 find . -type f -exec dos2unix {} \;
 ```
 
-### 2. Authenticate to Azure
+---
+
+### Phase 0: Azure Login and Set Environment Variables
+
+> **POSIX:**
 
 ```bash
 az login
 export ARM_SUBSCRIPTION_ID=$(az account show --query id --output tsv)
+export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/..."
 ```
 
-Ensure the correct subscription is active.
+> **Windows PowerShell:**
 
-### 3. Initialize and Apply Terraform
+```powershell
+az login
+$env:ARM_SUBSCRIPTION_ID = $(az account show --query id -o tsv)
+$env:SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/..."
+```
+
+---
+
+### Phase 1: Terraform Infrastructure Provisioning
 
 ```bash
-cd terraform/
+cd terraform
 terraform init
-terraform apply -auto-approve
+terraform apply -auto-approve -var-file="terraform.tfvars"
 ```
 
-This will:
-- Build infrastructure
-- Build & push Docker image
-- Deploy simulator to ACI
+---
 
-### 5. Run Post-Deploy Script
+### Phase 2: Post-Deployment Script
+
+> **POSIX:**
 
 ```bash
 chmod +x post_deploy.sh && ./post_deploy.sh
 ```
 
-This will generate `devices.conf` and upload it to the configured Azure File Share.
+> **Windows PowerShell:**
 
-### 6. Verify Device Telemetry
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+.\post_deploy.ps1
+```
 
-Monitor telemetry from your devices:
+---
+
+### Phase 3: Monitor Telemetry
 
 ```bash
 az iot hub monitor-events --hub-name IoT-Hub-Simulators
 ```
 
+#### Message Payload Format
+
+> Each device sends telemetry to the IoT Hub, e.g.
+
+```json
+{
+  "spot_id": A1,
+  "occupied": true,
+  "timestamp": "2000-12-31 12:34:56"
+}
+
+```
+
+|    Field    |  Type   |                                 Description                                 |
+|-------------|---------|-----------------------------------------------------------------------------|
+| `spot_id`   | String | parking spot number                                                        |
+| `occupied`  | Boolean | indicates whether the parking spot is occupied (`true`) or free (`false`)  |
+| `timestamp` | String  | ISO 8601 formatted UTC timestamp (e.g., `2000-12-31 12:34:56`)             |
+
+#### Example: Updating Desired Properties via Azure CLI
+
+Below are all the cases for modifying the simulator’s configuration at runtime using Device Twins. Replace <Hub_Name> and <Device_ID> with your actual IoT Hub name and device ID.
+
+##### 1. Change heartbeat_seconds only
+
+```bash
+az iot hub device-twin update \
+  --hub-name <Hub_Name> \
+  --device-id <Device_ID> \
+  --set properties.desired.heartbeat_seconds=600
+```
+
+##### 2. Change interval_seconds only
+
+```bash
+az iot hub device-twin update \
+  --hub-name <Hub_Name> \
+  --device-id <Device_ID> \
+  --set properties.desired.interval_seconds=10
+```
+
+##### 3. Change beam_count and occupancy_threshold together
+
+```bash
+az iot hub device-twin update \
+  --hub-name <Hub_Name> \
+  --device-id <Device_ID> \
+  --set properties.desired.beam_count=10 \
+            properties.desired.occupancy_threshold=5
+```
+
+##### 4. Change free_interval and occupied_interval together
+
+```bash
+az iot hub device-twin update \
+  --hub-name <Hub_Name> \
+  --device-id <Device_ID> \
+  --set properties.desired.free_interval=300 \
+            properties.desired.occupied_interval=900
+```
+
+##### 5. Change confirm_count only
+
+```bash
+az iot hub device-twin update \
+  --hub-name <Hub_Name> \
+  --device-id <Device_ID> \
+  --set properties.desired.confirm_count=3
+```
+
+##### 6. Change *all* configuration fields at once
+
+```bash
+az iot hub device-twin update \
+  --hub-name <Hub_Name> \
+  --device-id <Device_ID> \
+  --set properties.desired.heartbeat_seconds=600 \
+            properties.desired.interval_seconds=10 \
+            properties.desired.beam_count=10 \
+            properties.desired.occupancy_threshold=5 \
+            properties.desired.free_interval=300 \
+            properties.desired.occupied_interval=900 \
+            properties.desired.confirm_count=3
+```
+
+```bash
+az iot hub device-twin update \
+  --device-id <device_id> \
+  --hub-name <iot_hub_name> \
+  --set properties.desired='{
+    "heartbeat_seconds": 300,
+    "interval_seconds": 10,
+    "beam_count": 10,
+    "occupancy_threshold": 5,
+    "free_interval": 120,
+    "occupied_interval": 240,
+    "confirm_count": 3
+  }'
+```
+
+> After running any of these, simulator’s device twin handler will pick up the new values immediately — no restart required.
+
 ---
 
 ## Configuration Notes
 
-### Modify Device Types
+### Modify Device Count and Types
 
-To change the number and type of devices, edit:
+Edit `terraform/terraform.tfvars`:
 
 ```hcl
-# terraform/terraform.tfvars
 device_type_counts = {
   ir = 10
 }
 ```
 
-Then re-apply Terraform.
+---
 
 ### Modify Sensor Behavior
 
-To adjust timings, precision, etc., edit `IoT_Hub/sensor_ir/config.json`:
+Edit `IoT_Hub/sensor_ir/config.json`:
 
 ```json
-{  
+{
   "heartbeat_seconds": 600,
-  "beam_count": 8,
-  "occupancy_threshold": 6,
+  "interval_seconds": 10,
+  "beam_count": 10,
+  "occupancy_threshold": 5,
   "free_interval": 300,
   "occupied_interval": 900,
   "confirm_count": 3
 }
-
 ```
 
-> `config-*.json` files are generated automatically from `config.json` by `entrypoint.py`.
+> `config-*.json` files are generated by `entrypoint.py` based on `config.json` and `devices.conf`
 
 ---
 
-## Local Development (Optional)
+## Local Development (Docker)
 
-Run simulators locally using Docker Compose:
+Ensure `devices.conf` is available in the `IoT_Hub/share/` directory. This setup runs containers without needing Azure (working IoT Hub and valid device connection strings are still required).
+
+> Run simulators locally using Docker Compose:
 
 ```bash
 docker-compose up --build
 ```
 
-Ensure `devices.conf` is available is available in the `IoT_Hub/share/` directory. This setup runs containers without needing Azure.
+To stop and clean up:
+
+```bash
+docker-compose down -v
+```
+
+---
+
+## Local Development (Python Environment)
+
+Use the commands below to create and activate a Python virtual environment and install dependencies.
+
+```html
+<table>
+  <thead>
+    <tr>
+      <th>Platform</th>
+      <th>Commands</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>POSIX (Linux/WSL/macOS)</strong></td>
+      <td>
+        <pre><code>python3 -m venv .venv
+python3 -m pip install --upgrade pip
+source .venv/bin/activate
+pip install -r requirements.txt
+deactivate</code></pre>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Windows PowerShell</strong></td>
+      <td>
+        <pre><code>py -m venv .venv
+py -m pip install --upgrade pip
+.venv\Scripts\activate
+pip install -r requirements.txt
+deactivate</code></pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
+```
 
 ---
 
@@ -181,8 +339,6 @@ To delete all deployed resources:
 cd terraform
 terraform destroy -auto-approve
 ```
-
-This will remove the IoT Hub, ACI, ACR, and associated Azure resources.
 
 ---
 

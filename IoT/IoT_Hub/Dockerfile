@@ -1,5 +1,5 @@
-# Use the official slim Python 3.13 image as a lightweight, secure base
-FROM python:3.13-slim
+# Use the official slim Python 3.12 image as a lightweight, secure base
+FROM python:3.12-slim
 
 # Set working directory inside container
 WORKDIR /IoT_Hub
@@ -11,10 +11,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
 # Define default application log level (DEBUG, INFO, WARNING, ERROR)
-ENV LOG_LEVEL=INFO
+ENV LOG_LEVEL=ERROR
 
-# Configure system timezone to Europe/Warsaw
-ENV TZ=Europe/Warsaw
+# Configure system timezone to 'UTC' / 'Europe/Warsaw'
+ENV TZ=UTC
 
 # Install only required system packages and tzdata, then configure timezone
 RUN apt-get update && \

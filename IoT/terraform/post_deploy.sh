@@ -124,7 +124,7 @@ az container create \
   --azure-file-volume-account-key "$STORAGE_KEY" \
   --azure-file-volume-mount-path "IoT_Hub/share" \
   --environment-variables \
-    LOG_LEVEL=INFO \
+    LOG_LEVEL=ERROR \
     SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL" \
   --only-show-errors \
   >/dev/null

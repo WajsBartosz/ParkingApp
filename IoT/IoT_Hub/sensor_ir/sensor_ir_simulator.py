@@ -26,7 +26,7 @@ class IRSimulator(BaseSimulator):
         # Minimum beam hits to consider spot occupied
         self.occupancy_threshold = cfg.get("occupancy_threshold", 5)
 
-        # Time intervals (seconds) for free vs occupied sampling
+        # Time intervals (seconds) for free and occupied sampling
         self.free_interval = cfg.get("free_interval", 5 * 60)
         self.occupied_interval = cfg.get("occupied_interval", 15 * 60)
 
@@ -38,7 +38,27 @@ class IRSimulator(BaseSimulator):
         self._consec = 0
 
         # Start sampling at free interval
-        self.interval = self.free_interval
+        self.interval = cfg.get("interval_seconds", self.free_interval)
+        
+    def _apply_desired(self, desired: dict):
+        super()._apply_desired(desired)
+        for key in ("beam_count", "occupancy_threshold", "free_interval", "occupied_interval", "confirm_count"):
+            if key in desired:
+                setattr(self, key, desired[key])
+                logger.info(f"[{self.sensor_id}] {key} → {getattr(self, key)}")
+        self.report_configuration()
+
+    def report_configuration(self):
+        reported = {
+            "beam_count": self.beam_count,
+            "occupancy_threshold": self.occupancy_threshold,
+            "free_interval": self.free_interval,
+            "occupied_interval": self.occupied_interval,
+            "confirm_count": self.confirm_count,
+            "interval_seconds": self.interval
+        }
+        self.client.patch_twin_reported_properties(reported)
+        logger.info(f"[{self.sensor_id}] Reported properties updated: {json.dumps(reported)}")
     
     # Send a formatted notification to Slack via webhook integration.
     # Requires the SLACK_WEBHOOK_URL environment variable to be set.

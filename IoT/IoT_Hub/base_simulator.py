@@ -47,15 +47,36 @@ class BaseSimulator:
         self.connection_string = cfg["connection_string"]
         self.sensor_id = cfg["sensor_id"]
         # Optional timing parameters with defaults
-        self.interval = cfg.get("interval_seconds", 10)
         self.heartbeat = cfg.get("heartbeat_seconds", 600)
+        self.interval = cfg.get("interval_seconds", 10)
         self._running = True
 
         # Create IoT Hub client from the connection string
-        self.client = IoTHubDeviceClient.create_from_connection_string(
-            self.connection_string
-        )
-        logger.info(f"[{self.sensor_id}] Simulator initialized")
+        self.client = IoTHubDeviceClient.create_from_connection_string(self.connection_string)
+        self.client.on_twin_desired_properties_patch_received = self._on_desired_patch
+        logger.info(f"[{self.sensor_id}] Simulator initialized with Twin support")
+
+    def _on_desired_patch(self, patch):
+        """
+        Default handler for desired-properties patches.
+        Subclasses may override _apply_desired to adjust their own config.
+        """
+        desired = patch.get("properties", {}).get("desired", patch)
+        logger.info(f"[{self.sensor_id}] Desired patch received: {desired}")
+        self._apply_desired(desired)
+
+    def _apply_desired(self, desired: dict):
+        """
+        Apply any desired-properties to our config.
+        By default handles heartbeat_seconds and interval_seconds.
+        Subclasses should extend, but must call super().
+        """
+        if "heartbeat_seconds" in desired:
+            self.heartbeat = desired["heartbeat_seconds"]
+            logger.info(f"[{self.sensor_id}] heartbeat_seconds → {self.heartbeat}")
+        if "interval_seconds" in desired:
+            self.interval = desired["interval_seconds"]
+            logger.info(f"[{self.sensor_id}] interval_seconds → {self.interval}")
 
     # Start a background thread to update the device reported properties
     # with the latest heartbeat timestamp in Azure IoT Hub device twin.
